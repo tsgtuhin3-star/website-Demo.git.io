@@ -726,13 +726,13 @@ names.forEach((name, productIndex) => {
 const price = 299 + ((brandIndex * 137 + productIndex * 211) % 1900);
 PRODUCTS.push({
 id: nextBeautyProductId++,
-name: ${brand} ${name},
+name: `${brand} ${name}`,
 category: "beauty",
 price,
 originalPrice: Math.ceil(price * 1.2 / 10) * 10,
 discount: 17 + ((brandIndex + productIndex) % 16),
 rating: Number((4.2 + ((brandIndex + productIndex) % 7) / 10).toFixed(1)),
-reviewsCount: ${(2400 + brandIndex * 613 + productIndex * 387).toLocaleString('en-IN')},
+reviewsCount: `${(2400 + brandIndex * 613 + productIndex * 387).toLocaleString('en-IN')}`,
 image: BEAUTY_IMAGE_POOL[(brandIndex + productIndex) % BEAUTY_IMAGE_POOL.length],
 assured: true,
 isDealOfDay: productIndex % 3 === 0,
@@ -775,13 +775,13 @@ models.slice(0, Math.max(0, 10 - existingCount)).forEach((name, modelIndex) => {
 const price = 8999 + ((brandIndex * 7913 + modelIndex * 3187) % 110000);
 PRODUCTS.push({
 id: nextMobileProductId++,
-name: ${name} (5G, 256 GB),
+name: `${name} (5G, 256 GB)`,
 category: "mobiles",
 price,
 originalPrice: Math.ceil(price * 1.12 / 100) * 100,
 discount: 8 + ((brandIndex + modelIndex) % 23),
 rating: Number((4.2 + ((brandIndex + modelIndex) % 7) / 10).toFixed(1)),
-reviewsCount: ${(1800 + brandIndex * 731 + modelIndex * 419).toLocaleString('en-IN')},
+reviewsCount: `${(1800 + brandIndex * 731 + modelIndex * 419).toLocaleString('en-IN')}`,
 image: MOBILE_IMAGE_POOL[(brandIndex + modelIndex) % MOBILE_IMAGE_POOL.length],
 assured: true,
 isDealOfDay: modelIndex % 3 === 0,
@@ -817,13 +817,13 @@ models.slice(0, Math.max(0, 10 - existingCount)).forEach((name, modelIndex) => {
 const price = 1499 + ((brandIndex * 2761 + modelIndex * 1183) % 48000);
 PRODUCTS.push({
 id: nextAudioProductId++,
-name: ${brand} ${name},
+name: `${brand} ${name}`,
 category: "audio",
 price,
 originalPrice: Math.ceil(price * 1.18 / 10) * 10,
 discount: 12 + ((brandIndex + modelIndex) % 24),
 rating: Number((4.2 + ((brandIndex + modelIndex) % 7) / 10).toFixed(1)),
-reviewsCount: ${(2100 + brandIndex * 527 + modelIndex * 381).toLocaleString('en-IN')},
+reviewsCount: `${(2100 + brandIndex * 527 + modelIndex * 381).toLocaleString('en-IN')}`,
 image: AUDIO_IMAGE_POOL[(brandIndex + modelIndex) % AUDIO_IMAGE_POOL.length],
 assured: true,
 isDealOfDay: modelIndex % 3 === 0,
@@ -936,7 +936,7 @@ setAuthenticated();
 
 const renderOrderHistory = () => {
 const identity = localStorage.getItem('te_identity') || 'Customer';
-const orders = JSON.parse(localStorage.getItem(te_orders_${identity}) || '[]');
+const orders = JSON.parse(localStorage.getItem(`te_orders_${identity}`) || '[]');
 ordersHistory.innerHTML = '';
 if (orders.length === 0) {
 const empty = document.createElement('p');
@@ -949,13 +949,13 @@ orders.forEach((order) => {
 const card = document.createElement('div');
 card.className = 'order-history-card';
 const heading = document.createElement('strong');
-heading.textContent = Order #${order.id};
+heading.textContent = `Order #${order.id}`;
 const date = document.createElement('span');
 date.textContent = order.date;
 const items = document.createElement('p');
-items.textContent = order.items.map((item) => ${item.name} ×${item.qty}).join(' • ');
+items.textContent = order.items.map((item) => `${item.name} ×${item.qty}`).join(' • ');
 const total = document.createElement('b');
-total.textContent = ₹${order.total.toLocaleString('en-IN')} · ${order.status};
+total.textContent = `₹${order.total.toLocaleString('en-IN')} · ${order.status}`;
 card.append(heading, date, items, total);
 ordersHistory.appendChild(card);
 });
@@ -999,7 +999,7 @@ passwordToggle.addEventListener('click', () => {
 const isPassword = passwordInput.type === 'password';
 passwordInput.type = isPassword ? 'text' : 'password';
 passwordToggle.textContent = isPassword ? 'Hide' : 'Show';
-passwordToggle.setAttribute('aria-label', ${isPassword ? 'Hide' : 'Show'} password);
+passwordToggle.setAttribute('aria-label', `${isPassword ? 'Hide' : 'Show'} password`);
 });
 
 forgotPasswordLink.addEventListener('click', (event) => {
@@ -1053,8 +1053,8 @@ event.stopPropagation();
 loginScreen.addEventListener('pointermove', (event) => {
 const x = (event.clientX / window.innerWidth - 0.5) * 2;
 const y = (event.clientY / window.innerHeight - 0.5) * 2;
-loginScreen.style.setProperty('--pointer-x', ${x * 14}px);
-loginScreen.style.setProperty('--pointer-y', ${y * 14}px);
+loginScreen.style.setProperty('--pointer-x', `${x * 14}px`);
+loginScreen.style.setProperty('--pointer-y', `${y * 14}px`);
 });
 }
 
@@ -1070,7 +1070,7 @@ let autoSlideTimer;
 
 function goToSlide(index) {
 state.currentSlide = (index + totalSlides) % totalSlides;
-track.style.transform = translateX(-${state.currentSlide * 100}%);
+track.style.transform = `translateX(-${state.currentSlide * 100}%)`;
 
 dots.forEach((dot, i) => {
   dot.classList.toggle('active', i === state.currentSlide);
@@ -1143,17 +1143,18 @@ if (!list) return;
 if (!state.wishlist || state.wishlist.length === 0) {
 if (countLabel) countLabel.innerText = '(0 items)';
 if (footer) footer.style.display = 'none';
-list.innerHTML =       <div class="empty-cart-view">
+list.innerHTML = `
+      <div class="empty-cart-view">
         <div style="font-size: 48px;">❤️</div>
         <h4>Your Wishlist is Empty!</h4>
         <p style="font-size: 13px; color: #777;">Click the heart icon on any product to save it here.</p>
       </div>
-   ;
+   `;
 return;
 }
 
 if (footer) footer.style.display = 'block';
-if (countLabel) countLabel.innerText = (${state.wishlist.length} items);
+if (countLabel) countLabel.innerText = `(${state.wishlist.length} items)`;
 
 list.innerHTML = state.wishlist.map(id => {
 const prod = PRODUCTS.find(p => p.id === id);
@@ -1193,7 +1194,7 @@ localStorage.setItem('fk_wishlist', JSON.stringify(state.wishlist));
 updateWishlistBadge();
 renderWishlistItems();
 
-const card = document.getElementById(product-${productId});
+const card = document.getElementById(`product-${productId}`);
 if (card) {
 const heart = card.querySelector('.wishlist-btn');
 if (heart) heart.classList.remove('active');
@@ -1232,7 +1233,8 @@ function renderDealsStrip() {
 const container = document.getElementById('dealsScrollContainer');
 const deals = PRODUCTS.filter(p => p.isDealOfDay);
 
-container.innerHTML = deals.map(item =>     <div class="deal-card" data-product-id="${item.id}" onclick="openQuickView(${item.id})">
+container.innerHTML = deals.map(item => `
+    <div class="deal-card" data-product-id="${item.id}" onclick="openQuickView(${item.id})">
       <div class="deal-img-wrap">
         <img src="${item.image}" alt="${item.name}" class="deal-img" loading="lazy">
       </div>
@@ -1240,7 +1242,7 @@ container.innerHTML = deals.map(item =>     <div class="deal-card" data-product-
       <div class="deal-discount">Up to ${item.discount}% Off</div>
       <div class="deal-tag">${item.dealTag || 'Special Offer'}</div>
     </div>
- ).join('');
+`).join('');
 hydrateProductImages(deals, '.deal-card', '.deal-img');
 }
 
@@ -1374,7 +1376,7 @@ item.classList.remove('active');
 if (el) {
 el.classList.add('active');
 } else {
-const target = document.querySelector(.category-item[data-cat="${category}"]);
+const target = document.querySelector(`.category-item[data-cat="${category}"]`);
 if (target) target.classList.add('active');
 }
 
@@ -1385,8 +1387,8 @@ if (category === 'all') {
 titleEl.innerText = "Trending Products";
 subEl.innerText = "Handpicked deals with Tuhin Assured quality";
 } else {
-titleEl.innerText = ${category.charAt(0).toUpperCase() + category.slice(1)} Deals;
-subEl.innerText = Showing top rated items in ${category};
+titleEl.innerText = `${category.charAt(0).toUpperCase() + category.slice(1)} Deals`;
+subEl.innerText = `Showing top rated items in ${category}`;
 }
 
 renderProducts();
@@ -1420,9 +1422,10 @@ const brandList = document.getElementById('mobileBrandList');
 const brands = [...new Set(PRODUCTS
 .filter(product => product.category === category)
 .map(product => getCategoryBrand(product, category)))];
-brandList.innerHTML =     <button class="mobile-brand-chip active" type="button" data-brand="all">All brands</button>
-    ${brands.map(brand =><button class="mobile-brand-chip" type="button" data-brand="${brand}">${brand}</button>).join('')}
-  ;
+brandList.innerHTML = `
+    <button class="mobile-brand-chip active" type="button" data-brand="all">All brands</button>
+    ${brands.map(brand => `<button class="mobile-brand-chip" type="button" data-brand="${brand}">${brand}</button>`).join('')}
+  `;
 }
 
 function openCategoryInterface(category) {
@@ -1447,7 +1450,7 @@ beauty: ['Tuhin Beauty Studio', 'Glow your way.', 'Discover makeup, skincare, bo
 }[category];
 document.getElementById('categoryHubLabel').textContent = copy[0];
 const titleWords = copy[1].split(' ');
-document.getElementById('mobileInterfaceTitle').innerHTML = ${titleWords.slice(0, -1).join(' ')} <span>${titleWords[titleWords.length - 1]}</span>;
+document.getElementById('mobileInterfaceTitle').innerHTML = `${titleWords.slice(0, -1).join(' ')} <span>${titleWords[titleWords.length - 1]}</span>`;
 document.getElementById('categoryInterfaceDescription').textContent = copy[2];
 document.getElementById('categoryBrandHeading').textContent = copy[3];
 document.getElementById('categoryBrandDescription').textContent = copy[4];
@@ -1480,8 +1483,9 @@ return product.name.toLowerCase().includes(q) ||
 return true;
 });
 
-count.textContent = ${phones.length} product${phones.length === 1 ? '' : 's'} available;
-grid.innerHTML = phones.map(phone =>     <article class="mobile-phone-card" data-phone-id="${phone.id}">
+count.textContent = `${phones.length} product${phones.length === 1 ? '' : 's'} available`;
+grid.innerHTML = phones.map(phone => `
+    <article class="mobile-phone-card" data-phone-id="${phone.id}">
       <div class="mobile-phone-image" onclick="openQuickView(${phone.id})">
         <span class="mobile-phone-discount">${phone.discount}% OFF</span>
         <span class="mobile-phone-brand-badge">${getCategoryBrand(phone, category)}</span>
@@ -1503,15 +1507,15 @@ grid.innerHTML = phones.map(phone =>     <article class="mobile-phone-card" data
         </div>
       </div>
     </article>
- ).join('');
+`).join('');
 
 hydrateProductImages(phones, '.mobile-phone-card', 'img');
 }
 
 async function hydrateProductImages(products, cardSelector, imageSelector) {
 await Promise.all(products.map(async (product) => {
-const card = document.querySelector(${cardSelector}[data-phone-id="${product.id}"])
-|| document.querySelector(${cardSelector}[data-product-id="${product.id}"]);
+const card = document.querySelector(`${cardSelector}[data-phone-id="${product.id}"]`)
+|| document.querySelector(`${cardSelector}[data-product-id="${product.id}"]`);
 const image = card ? card.querySelector('img') : null;
 if (!image) return;
 
@@ -1688,12 +1692,14 @@ p.category.toLowerCase().includes(q) ||
 ).slice(0, 6);
 
 if (matches.length === 0) {
-dropdown.innerHTML =       <div style="padding: 16px; text-align: center; color: #64748b; font-size: 13px;">
+dropdown.innerHTML = `
+      <div style="padding: 16px; text-align: center; color: #64748b; font-size: 13px;">
         No items found for "<strong>${escapeHtml(q)}</strong>"
       </div>
-   ;
+   `;
 } else {
-dropdown.innerHTML =       ${matches.map(item =>
+dropdown.innerHTML = `
+    ${matches.map(item => `
 <div class="search-suggest-item" onclick="selectSearchItem(${item.id})">
 <img src="${item.image}" alt="${escapeHtml(item.name)}" class="search-suggest-img" loading="lazy" />
 <div class="search-suggest-info">
@@ -1701,15 +1707,15 @@ dropdown.innerHTML =       ${matches.map(item =>
 <div class="search-suggest-meta">
 <span>₹${item.price.toLocaleString('en-IN')}</span>
 <span class="search-suggest-cat">in ${item.category}</span>
-${item.discount ? <span style="color:#e0540f;">${item.discount}% off</span> : ''}
+${item.discount ? `<span style="color:#e0540f;">${item.discount}% off</span>` : ''}
 </div>
 </div>
 </div>
-).join('')}
+`).join('')}
       <div class="search-dropdown-footer" onclick="executeSearch()">
         View all results for "${escapeHtml(q)}" →
       </div>
-    ;
+    `;
 }
 
 dropdown.classList.add('show');
@@ -1738,7 +1744,7 @@ renderProducts();
 // Scroll to catalog section and highlight matching card
 scrollToCatalog();
 setTimeout(() => {
-const card = document.getElementById(product-${productId});
+const card = document.getElementById(`product-${productId}`);
 if (card) {
 card.classList.add('search-highlight');
 card.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1799,7 +1805,7 @@ if (subEl) subEl.innerText = "Handpicked deals with Tuhin Assured quality";
 
 function escapeHtml(str) {
 if (!str) return '';
-return str.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """);
+return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 // ==========================================
@@ -1810,7 +1816,7 @@ const product = PRODUCTS.find(p => p.id === productId);
 if (!product) return;
 
 // 1. Locate source image and target cart icon
-const sourceImg = document.getElementById(img-${productId}) || event.target.closest('.product-card').querySelector('img');
+const sourceImg = document.getElementById(`img-${productId}`) || event.target.closest('.product-card').querySelector('img');
 const cartIcon = document.getElementById('cartBadgeWrapper');
 
 if (sourceImg && cartIcon) {
@@ -1862,7 +1868,7 @@ state.cart.push({ id: productId, qty: 1 });
 
 saveCart();
 updateCartBadge();
-showToast(Added "${product.name.substring(0, 26)}..." to cart! 🛒);
+showToast(`Added "${product.name.substring(0, 26)}..." to cart! 🛒`);
 }
 
 // ==========================================
@@ -1892,13 +1898,14 @@ const countLabel = document.getElementById('drawerCartCount');
 
 if (state.cart.length === 0) {
 countLabel.innerText = '(0 items)';
-list.innerHTML =       <div class="empty-cart-view">
+list.innerHTML = `
+     <div class="empty-cart-view">
         <div class="empty-cart-img">🛒</div>
         <h4>Your cart is empty!</h4>
         <p>Explore our hot deals and add items to your cart.</p>
         <button class="slide-cta-btn" onclick="toggleCartDrawer(false)">Shop Deals</button>
       </div>
-   ;
+   `;
 updatePriceSummary(0, 0);
 return;
 }
@@ -1936,7 +1943,7 @@ return `
 
 }).join('');
 
-countLabel.innerText = (${totalItems} item${totalItems > 1 ? 's' : ''});
+countLabel.innerText = `(${totalItems} item${totalItems > 1 ? 's' : ''})`;
 updatePriceSummary(subtotal, originalTotal);
 }
 
@@ -1964,9 +1971,9 @@ showToast('Item removed from cart.');
 
 function updatePriceSummary(subtotal, originalTotal) {
 const discount = originalTotal - subtotal;
-document.getElementById('cartSubtotal').innerText = ₹${originalTotal.toLocaleString('en-IN')};
-document.getElementById('cartDiscount').innerText = - ₹${discount.toLocaleString('en-IN')};
-document.getElementById('cartGrandTotal').innerText = ₹${subtotal.toLocaleString('en-IN')};
+document.getElementById('cartSubtotal').innerText = `₹${originalTotal.toLocaleString('en-IN')}`;
+document.getElementById('cartDiscount').innerText = `- ₹${discount.toLocaleString('en-IN')}`;
+document.getElementById('cartGrandTotal').innerText = `₹${subtotal.toLocaleString('en-IN')}`;
 
 // Free delivery progress bar (Free above ₹1,000)
 const target = 1000;
@@ -1979,8 +1986,8 @@ text.innerHTML = subtotal === 0 ? 'Add items to earn free shipping' : '<span sty
 } else {
 const diff = target - subtotal;
 const pct = Math.min((subtotal / target) * 100, 100);
-fill.style.width = ${pct}%;
-text.innerText = Add ₹${diff.toLocaleString('en-IN')} more for FREE Delivery!;
+fill.style.width = `${pct}%`;
+text.innerText = `Add ₹${diff.toLocaleString('en-IN')} more for FREE Delivery!`;
 }
 }
 
@@ -2007,7 +2014,7 @@ const items = document.getElementById('paymentItems');
 const total = document.getElementById('cartGrandTotal').innerText;
 items.innerHTML = state.cart.map(item => {
 const product = PRODUCTS.find(p => p.id === item.id);
-return product ? <div class="payment-item"><span>${product.name} <b>×${item.qty}</b></span><strong>₹${(product.price * item.qty).toLocaleString('en-IN')}</strong></div> : '';
+return product ? `<div class="payment-item"><span>${product.name} <b>×${item.qty}</b></span><strong>₹${(product.price * item.qty).toLocaleString('en-IN')}</strong></div>` : '';
 }).join('');
 document.getElementById('paymentTotal').innerText = total;
 document.getElementById('paymentButtonTotal').innerText = total;
@@ -2038,7 +2045,7 @@ return;
 }
 
 const identity = localStorage.getItem('te_identity') || 'Customer';
-const ordersKey = te_orders_${identity};
+const ordersKey = `te_orders_${identity}`;
 const savedOrders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
 const orderItems = state.cart.map((item) => {
 const product = PRODUCTS.find((product) => product.id === item.id);
@@ -2049,7 +2056,7 @@ const product = PRODUCTS.find((candidate) => candidate.id === item.id);
 return sum + (product ? product.price * item.qty : 0);
 }, 0);
 savedOrders.unshift({
-id: TE${Date.now().toString().slice(-6)},
+id: `TE${Date.now().toString().slice(-6)}`,
 date: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
 items: orderItems,
 total,
@@ -2214,8 +2221,7 @@ function showToast(message) {
 const container = document.getElementById('toastContainer');
 const toast = document.createElement('div');
 toast.className = 'toast';
-toast.innerHTML =     <span>${message}</span>
- ;
+toast.textContent = message;
 
 container.appendChild(toast);
 
