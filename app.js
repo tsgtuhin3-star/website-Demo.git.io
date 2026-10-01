@@ -1121,12 +1121,56 @@ cart: JSON.parse(localStorage.getItem('fk_cart')) || [],
 wishlist: JSON.parse(localStorage.getItem('fk_wishlist')) || [],
 currentSlide: 0
 };
+let backendConfig = { razorpayEnabled: false, keyId: '' };
 let nextCartEntryId = 100000 + state.cart.reduce((max, item) => Math.max(max, item.cartEntryId || 0), 0);
+
+async function loadBackendStore() {
+try {
+const [catalogResponse, configResponse] = await Promise.all([
+fetch('/api/products'),
+fetch('/api/config')
+]);
+if (catalogResponse.ok) {
+const catalog = await catalogResponse.json();
+if (Array.isArray(catalog.products) && Array.isArray(catalog.iphoneProducts)) {
+PRODUCTS.splice(0, PRODUCTS.length, ...catalog.products);
+IPHONE_PRODUCTS.splice(0, IPHONE_PRODUCTS.length, ...catalog.iphoneProducts);
+}
+}
+if (configResponse.ok) {
+const config = await configResponse.json();
+backendConfig = config.payments || backendConfig;
+}
+} catch (error) {
+console.warn('Backend is unavailable. The local demo catalog is being shown.', error);
+}
+
+if (!backendConfig.razorpayEnabled) {
+document.querySelectorAll('.payment-method input[name="paymentMethod"]').forEach((input) => {
+if (input.value !== 'cod') {
+input.closest('.payment-method').hidden = true;
+input.closest('.payment-method').style.display = 'none';
+}
+});
+const cashOnDelivery = document.querySelector('input[name="paymentMethod"][value="cod"]');
+if (cashOnDelivery) cashOnDelivery.checked = true;
+const note = document.querySelector('.payment-demo-note');
+if (note) note.textContent = 'Cash on Delivery is available. Online payment can be enabled in the backend settings.';
+} else {
+const note = document.querySelector('.payment-demo-note');
+if (note) note.textContent = 'Online payments open in the secure payment provider checkout.';
+}
+const paymentExtra = document.getElementById('paymentExtra');
+if (paymentExtra) paymentExtra.style.display = 'none';
+const paymentReference = document.getElementById('paymentReference');
+if (paymentReference) paymentReference.required = false;
+}
 
 // ==========================================
 // 3. INITIALIZATION ON DOM LOAD
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+await loadBackendStore();
 initEnterpriseLogin();
 renderDealsStrip();
 renderProducts();
@@ -2188,6 +2232,13 @@ return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").re
 function addToCart(productId, event, variant = null) {
 const product = findProductById(productId);
 if (!product) return;
+if (Number.isFinite(product.stock)) {
+const inCart = state.cart.filter(item => Number(item.id) === Number(productId)).reduce((sum, item) => sum + item.qty, 0);
+if (inCart >= product.stock) {
+showToast(product.stock > 0 ? 'You have added all available stock.' : 'This item is out of stock. Please check back later.');
+return;
+}
+}
 
 // 1. Locate source image and target cart icon
 const sourceImg = document.getElementById(`img-${productId}`)
@@ -2335,6 +2386,14 @@ function changeQty(productId, delta) {
 const item = state.cart.find(p => (p.cartEntryId || p.id) === productId);
 if (!item) return;
 
+if (delta > 0) {
+const product = findProductById(item.id);
+const inCart = state.cart.filter(entry => Number(entry.id) === Number(item.id)).reduce((sum, entry) => sum + entry.qty, 0);
+if (Number.isFinite(product?.stock) && inCart >= product.stock) {
+showToast('You have added all available stock.');
+return;
+}
+}
 item.qty += delta;
 if (item.qty <= 0) {
 state.cart = state.cart.filter(p => p.id !== productId);
@@ -2733,4 +2792,161 @@ toast.style.opacity = '0';
 toast.style.transform = 'translateY(10px) scale(0.9)';
 setTimeout(() => toast.remove(), 400);
 }, 2600);
+}
+
+// The checkout sends only product IDs and quantities. Prices and stock are
+// recalculated by the backend before an order is accepted.
+async function completePayment() {
+const requiredFields = ['checkoutName', 'checkoutPhone', 'checkoutAddress', 'checkoutCity', 'checkoutPin'];
+const missingField = requiredFields.find(id => !document.getElementById(id).value.trim());
+if (missingField) {
+document.getElementById(missingField).focus();
+showToast('Please complete your delivery details.');
+return;
+}
+
+const method = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cod';
+const button = document.querySelector('.pay-securely-btn');
+const previousMarkup = button.innerHTML;
+button.disabled = true;
+button.setAttribute('aria-busy', 'true');
+try {
+const response = await fetch('/api/orders', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+customer: {
+name: document.getElementById('checkoutName').value.trim(),
+phone: document.getElementById('checkoutPhone').value.trim(),
+address: document.getElementById('checkoutAddress').value.trim(),
+city: document.getElementById('checkoutCity').value.trim(),
+postalCode: document.getElementById('checkoutPin').value.trim()
+},
+paymentMethod: method === 'cod' ? 'cod' : 'razorpay',
+items: state.cart.map(item => ({
+productId: Number(item.id),
+quantity: Number(item.qty),
+variant: item.variant ? {
+color: item.variant.color,
+storage: item.variant.storage,
+ram: item.variant.ram
+} : null
+}))
+})
+});
+const result = await response.json();
+if (!response.ok) throw new Error(result.error || 'Could not place this order.');
+if (method === 'cod') {
+finishBackendOrder(result.order);
+return;
+}
+await startRazorpayCheckout(result);
+} catch (error) {
+showToast(error.message || 'Backend se connect nahi ho paya. Please try again.');
+button.disabled = false;
+button.innerHTML = previousMarkup;
+button.removeAttribute('aria-busy');
+}
+}
+
+function finishBackendOrder(order) {
+if (!order) {
+showToast('Order response was missing. Please check your order status.');
+return;
+}
+const identity = localStorage.getItem('te_identity') || 'Customer';
+const ordersKey = 'te_orders_' + identity;
+const savedOrders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
+const orderDate = order.date ? new Date(order.date.replace(' ', 'T') + 'Z') : new Date();
+savedOrders.unshift({
+id: order.orderNumber,
+date: orderDate.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
+items: order.items.map(item => ({ name: item.name, qty: item.qty })),
+total: order.total,
+status: order.fulfillmentStatus
+});
+localStorage.setItem(ordersKey, JSON.stringify(savedOrders));
+const message = document.querySelector('.farewell-message');
+if (message) message.textContent = 'Order ' + order.orderNumber + ' has been confirmed. Thank you for shopping with us.';
+closePaymentInterface();
+state.cart = [];
+saveCart();
+updateCartBadge();
+renderCartItems();
+showFarewellInterface();
+}
+
+async function startRazorpayCheckout(result) {
+if (!backendConfig.razorpayEnabled || !backendConfig.keyId || !result.razorpayOrder) {
+throw new Error('Secure online payment is not configured. Choose Cash on Delivery.');
+}
+if (!window.Razorpay) {
+await new Promise((resolve, reject) => {
+const script = document.createElement('script');
+script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+script.onload = resolve;
+script.onerror = () => reject(new Error('Could not load the secure payment page.'));
+document.head.appendChild(script);
+});
+}
+const checkout = new window.Razorpay({
+key: backendConfig.keyId,
+amount: result.razorpayOrder.amount,
+currency: result.razorpayOrder.currency,
+name: 'Tuhin Enterprise',
+description: 'Order ' + result.order.orderNumber,
+order_id: result.razorpayOrder.id,
+prefill: {
+name: document.getElementById('checkoutName').value.trim(),
+contact: document.getElementById('checkoutPhone').value.trim()
+},
+theme: { color: '#2874f0' },
+handler: async payment => {
+try {
+const response = await fetch('/api/payments/verify', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+orderNumber: result.order.orderNumber,
+razorpay_order_id: payment.razorpay_order_id,
+razorpay_payment_id: payment.razorpay_payment_id,
+razorpay_signature: payment.razorpay_signature
+})
+});
+const verified = await response.json();
+if (!response.ok) throw new Error(verified.error || 'Payment confirmation is still pending.');
+finishBackendOrder(verified.order);
+} catch (error) {
+showToast(error.message || 'Payment confirmation is pending. Check the order status shortly.');
+const button = document.querySelector('.pay-securely-btn');
+button.disabled = false;
+button.removeAttribute('aria-busy');
+}
+},
+modal: {
+ondismiss: () => {
+const button = document.querySelector('.pay-securely-btn');
+button.disabled = false;
+button.removeAttribute('aria-busy');
+showToast('Secure checkout closed. The pending order will expire automatically.');
+}
+}
+});
+checkout.open();
+}
+
+function initPaymentMethods() {
+const methods = document.querySelectorAll('.payment-method');
+const extra = document.getElementById('paymentExtra');
+const upiApps = document.getElementById('upiApps');
+const reference = document.getElementById('paymentReference');
+methods.forEach(method => {
+method.addEventListener('click', () => {
+methods.forEach(item => item.classList.remove('active'));
+method.classList.add('active');
+extra.style.display = 'none';
+upiApps.style.display = 'none';
+reference.required = false;
+});
+});
 }

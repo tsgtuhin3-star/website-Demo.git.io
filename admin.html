@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Store Admin | Tuhin Enterprise</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <header class="admin-header">
+    <a class="brand" href="/">Tuhin Enterprise <span>Store Admin</span></a>
+    <button id="logoutButton" class="button secondary" type="button" hidden>Sign out</button>
+  </header>
+
+  <main class="admin-main">
+    <section id="loginPanel" class="panel login-panel">
+      <p class="eyebrow">Private dashboard</p>
+      <h1>Administrator sign in</h1>
+      <p>Sign in to edit product inventory and manage customer orders.</p>
+      <form id="loginForm">
+        <label>Username<input id="adminUsername" name="username" autocomplete="username" required></label>
+        <label>Password<input id="adminPassword" name="password" type="password" autocomplete="current-password" required></label>
+        <button class="button" type="submit">Sign in</button>
+        <p id="loginMessage" class="message" role="status"></p>
+      </form>
+    </section>
+
+    <div id="dashboard" hidden>
+      <div class="page-heading">
+        <div><p class="eyebrow">Store operations</p><h1>Dashboard</h1></div>
+        <a class="button secondary" href="/">View storefront</a>
+      </div>
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">Catalog</p><h2>Add a product</h2></div></div>
+        <form id="productForm" class="product-form">
+          <label>Product name<input name="name" maxlength="120" required></label>
+          <label>Category
+            <select name="category" required>
+              <option value="mobiles">Mobiles</option><option value="laptops">Laptops</option>
+              <option value="audio">Audio</option><option value="fashion">Fashion</option>
+              <option value="beauty">Beauty</option><option value="gaming">Gaming</option>
+              <option value="home">Home</option><option value="appliances">Appliances</option>
+            </select>
+          </label>
+          <label>Selling price (₹)<input name="price" type="number" min="0" step="1" required></label>
+          <label>Original price (₹)<input name="originalPrice" type="number" min="0" step="1" required></label>
+          <label>Stock quantity<input name="stock" type="number" min="0" step="1" value="0" required></label>
+          <label class="wide">HTTPS product image URL<input name="image" type="url" placeholder="https://..." required></label>
+          <label class="wide">Specifications (one per line)<textarea name="specs" rows="3"></textarea></label>
+          <button class="button" type="submit">Add product</button>
+          <p id="productMessage" class="message" role="status"></p>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div><p class="eyebrow">Availability</p><h2>Products & stock</h2></div>
+          <input id="productSearch" class="search" type="search" placeholder="Search products">
+        </div>
+        <p class="hint">Existing demo products start with zero stock. Enter your real inventory before accepting orders.</p>
+        <div class="table-wrap">
+          <table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr></thead>
+            <tbody id="productRows"></tbody>
+          </table>
+        </div>
+        <p id="inventoryMessage" class="message" role="status"></p>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">Fulfillment</p><h2>Recent orders</h2></div>
+          <button id="refreshOrders" class="button secondary" type="button">Refresh</button>
+        </div>
+        <div id="ordersList" class="orders-list"></div>
+        <p id="ordersMessage" class="message" role="status"></p>
+      </section>
+    </div>
+  </main>
+  <script src="admin.js"></script>
+</body>
+</html>
