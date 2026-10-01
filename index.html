@@ -543,33 +543,12 @@
           </div>
           <div class="payment-step"><span>2</span><strong>Choose payment method</strong></div>
           <div class="payment-methods">
-            <label class="payment-method active"><input type="radio" name="paymentMethod" value="upi"
-                checked><span>◉</span><strong>UPI</strong><small>Instant & secure</small></label>
-            <label class="payment-method"><input type="radio" name="paymentMethod"
-                value="card"><span>▣</span><strong>Card</strong><small>Credit / Debit</small></label>
+            <label class="payment-method active"><input type="radio" name="paymentMethod" value="razorpay"
+                checked><span>◉</span><strong>Online payment</strong><small>UPI, cards & more · Razorpay</small></label>
             <label class="payment-method"><input type="radio" name="paymentMethod"
                 value="cod"><span>₹</span><strong>Cash on Delivery</strong><small>Pay at doorstep</small></label>
           </div>
-          <div class="payment-extra" id="paymentExtra">
-            <div class="upi-apps" id="upiApps" aria-label="Choose UPI app">
-              <label class="upi-app active"><input type="radio" name="upiApp" value="Google Pay" checked><span
-                  class="upi-logo gpay-logo"><img
-                    src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/googlepay.svg"
-                    alt="Google Pay logo"></span><strong>GPay</strong></label>
-              <label class="upi-app"><input type="radio" name="upiApp" value="PhonePe"><span
-                  class="upi-logo phonepe-logo"><img
-                    src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/phonepe.svg"
-                    alt="PhonePe logo"></span><strong>PhonePe</strong></label>
-              <label class="upi-app"><input type="radio" name="upiApp" value="Paytm"><span
-                  class="upi-logo paytm-logo"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/paytm.svg"
-                    alt="Paytm logo"></span><strong>Paytm</strong></label>
-              <label class="upi-app"><input type="radio" name="upiApp" value="PayPal"><span
-                  class="upi-logo paypal-logo"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/paypal.svg"
-                    alt="PayPal logo"></span><strong>PayPal</strong></label>
-            </div>
-            <input id="paymentReference" type="text" placeholder="Enter UPI ID (example: name@upi)" required>
-          </div>
-          <button class="pay-securely-btn" type="button" onclick="completePayment()">🔒 Pay Securely <span
+          <button class="pay-securely-btn" type="button" onclick="completePayment()">🔒 <span class="pay-action-label">Continue to secure payment</span> <span
               id="paymentButtonTotal">₹0</span></button>
           <p class="payment-demo-note">Orders are confirmed by the store backend.</p>
         </div>

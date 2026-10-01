@@ -1155,7 +1155,7 @@ input.closest('.payment-method').style.display = 'none';
 const cashOnDelivery = document.querySelector('input[name="paymentMethod"][value="cod"]');
 if (cashOnDelivery) cashOnDelivery.checked = true;
 const note = document.querySelector('.payment-demo-note');
-if (note) note.textContent = 'Cash on Delivery is available. Online payment can be enabled in the backend settings.';
+if (note) note.textContent = 'Online checkout is not set up yet. Add Razorpay test or live keys to .env and restart the server.';
 } else {
 const note = document.querySelector('.payment-demo-note');
 if (note) note.textContent = 'Online payments open in the secure payment provider checkout.';
@@ -2937,16 +2937,17 @@ checkout.open();
 
 function initPaymentMethods() {
 const methods = document.querySelectorAll('.payment-method');
-const extra = document.getElementById('paymentExtra');
-const upiApps = document.getElementById('upiApps');
-const reference = document.getElementById('paymentReference');
+const syncSelection = () => {
 methods.forEach(method => {
-method.addEventListener('click', () => {
-methods.forEach(item => item.classList.remove('active'));
-method.classList.add('active');
-extra.style.display = 'none';
-upiApps.style.display = 'none';
-reference.required = false;
+const input = method.querySelector('input[name="paymentMethod"]');
+method.classList.toggle('active', Boolean(input?.checked));
 });
+const selected = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+const actionLabel = document.querySelector('.pay-action-label');
+if (actionLabel) actionLabel.textContent = selected === 'cod' ? 'Place COD order' : 'Continue to secure payment';
+};
+methods.forEach(method => {
+method.querySelector('input[name="paymentMethod"]')?.addEventListener('change', syncSelection);
 });
+syncSelection();
 }
