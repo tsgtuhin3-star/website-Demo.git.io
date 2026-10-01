@@ -5218,7 +5218,7 @@
       ]
     },
     {
-      "id": 200,
+      "id": 250,
       "name": "Samsung Galaxy S25 (5G, 256 GB)",
       "category": "mobiles",
       "price": 16912,
@@ -5258,7 +5258,7 @@
       }
     },
     {
-      "id": 201,
+      "id": 251,
       "name": "Samsung Galaxy S25+ (5G, 256 GB)",
       "category": "mobiles",
       "price": 20099,
@@ -5298,7 +5298,7 @@
       }
     },
     {
-      "id": 202,
+      "id": 252,
       "name": "Samsung Galaxy S25 Ultra (5G, 256 GB)",
       "category": "mobiles",
       "price": 23286,
@@ -5338,7 +5338,7 @@
       }
     },
     {
-      "id": 203,
+      "id": 253,
       "name": "Samsung Galaxy S24 FE (5G, 256 GB)",
       "category": "mobiles",
       "price": 26473,
@@ -5378,7 +5378,7 @@
       }
     },
     {
-      "id": 204,
+      "id": 254,
       "name": "Samsung Galaxy Z Fold6 (5G, 256 GB)",
       "category": "mobiles",
       "price": 29660,
@@ -5418,7 +5418,7 @@
       }
     },
     {
-      "id": 205,
+      "id": 255,
       "name": "Samsung Galaxy Z Flip6 (5G, 256 GB)",
       "category": "mobiles",
       "price": 32847,
@@ -5458,7 +5458,7 @@
       }
     },
     {
-      "id": 206,
+      "id": 256,
       "name": "Samsung Galaxy A56 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 36034,
@@ -5498,7 +5498,7 @@
       }
     },
     {
-      "id": 207,
+      "id": 257,
       "name": "Google Pixel 9 (5G, 256 GB)",
       "category": "mobiles",
       "price": 24825,
@@ -5538,7 +5538,7 @@
       }
     },
     {
-      "id": 208,
+      "id": 258,
       "name": "Google Pixel 9 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 28012,
@@ -5578,7 +5578,7 @@
       }
     },
     {
-      "id": 209,
+      "id": 259,
       "name": "Google Pixel 9 Pro XL (5G, 256 GB)",
       "category": "mobiles",
       "price": 31199,
@@ -5618,7 +5618,7 @@
       }
     },
     {
-      "id": 210,
+      "id": 260,
       "name": "Google Pixel 8a (5G, 256 GB)",
       "category": "mobiles",
       "price": 34386,
@@ -5658,7 +5658,7 @@
       }
     },
     {
-      "id": 211,
+      "id": 261,
       "name": "Google Pixel 8 (5G, 256 GB)",
       "category": "mobiles",
       "price": 37573,
@@ -5698,7 +5698,7 @@
       }
     },
     {
-      "id": 212,
+      "id": 262,
       "name": "Google Pixel 8 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 40760,
@@ -5738,7 +5738,7 @@
       }
     },
     {
-      "id": 213,
+      "id": 263,
       "name": "Google Pixel 7a (5G, 256 GB)",
       "category": "mobiles",
       "price": 43947,
@@ -5778,7 +5778,7 @@
       }
     },
     {
-      "id": 214,
+      "id": 264,
       "name": "OnePlus 13 (5G, 256 GB)",
       "category": "mobiles",
       "price": 32738,
@@ -5818,7 +5818,7 @@
       }
     },
     {
-      "id": 215,
+      "id": 265,
       "name": "OnePlus 13R (5G, 256 GB)",
       "category": "mobiles",
       "price": 35925,
@@ -5858,7 +5858,7 @@
       }
     },
     {
-      "id": 216,
+      "id": 266,
       "name": "OnePlus 12R (5G, 256 GB)",
       "category": "mobiles",
       "price": 39112,
@@ -5898,7 +5898,7 @@
       }
     },
     {
-      "id": 217,
+      "id": 267,
       "name": "OnePlus Nord 4 (5G, 256 GB)",
       "category": "mobiles",
       "price": 42299,
@@ -5938,7 +5938,7 @@
       }
     },
     {
-      "id": 218,
+      "id": 268,
       "name": "OnePlus Nord CE4 (5G, 256 GB)",
       "category": "mobiles",
       "price": 45486,
@@ -5978,7 +5978,7 @@
       }
     },
     {
-      "id": 219,
+      "id": 269,
       "name": "OnePlus Nord CE4 Lite (5G, 256 GB)",
       "category": "mobiles",
       "price": 48673,
@@ -6018,7 +6018,7 @@
       }
     },
     {
-      "id": 220,
+      "id": 270,
       "name": "OnePlus Open (5G, 256 GB)",
       "category": "mobiles",
       "price": 51860,
@@ -6058,7 +6058,7 @@
       }
     },
     {
-      "id": 221,
+      "id": 271,
       "name": "Xiaomi 14 (5G, 256 GB)",
       "category": "mobiles",
       "price": 40651,
@@ -6098,7 +6098,7 @@
       }
     },
     {
-      "id": 222,
+      "id": 272,
       "name": "Xiaomi 14 Ultra (5G, 256 GB)",
       "category": "mobiles",
       "price": 43838,
@@ -6138,7 +6138,7 @@
       }
     },
     {
-      "id": 223,
+      "id": 273,
       "name": "Xiaomi 14 Civi (5G, 256 GB)",
       "category": "mobiles",
       "price": 47025,
@@ -6178,7 +6178,7 @@
       }
     },
     {
-      "id": 224,
+      "id": 274,
       "name": "Xiaomi 13 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 50212,
@@ -6218,7 +6218,7 @@
       }
     },
     {
-      "id": 225,
+      "id": 275,
       "name": "Xiaomi Redmi Note 14 Pro+ (5G, 256 GB)",
       "category": "mobiles",
       "price": 53399,
@@ -6258,7 +6258,7 @@
       }
     },
     {
-      "id": 226,
+      "id": 276,
       "name": "Xiaomi Redmi Note 14 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 56586,
@@ -6298,7 +6298,7 @@
       }
     },
     {
-      "id": 227,
+      "id": 277,
       "name": "Xiaomi Redmi Note 14 (5G, 256 GB)",
       "category": "mobiles",
       "price": 59773,
@@ -6338,7 +6338,7 @@
       }
     },
     {
-      "id": 228,
+      "id": 278,
       "name": "Redmi Note 14 Pro+ (5G, 256 GB)",
       "category": "mobiles",
       "price": 48564,
@@ -6378,7 +6378,7 @@
       }
     },
     {
-      "id": 229,
+      "id": 279,
       "name": "Redmi Note 14 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 51751,
@@ -6418,7 +6418,7 @@
       }
     },
     {
-      "id": 230,
+      "id": 280,
       "name": "Redmi Note 14 (5G, 256 GB)",
       "category": "mobiles",
       "price": 54938,
@@ -6458,7 +6458,7 @@
       }
     },
     {
-      "id": 231,
+      "id": 281,
       "name": "Redmi Note 13 Pro+ (5G, 256 GB)",
       "category": "mobiles",
       "price": 58125,
@@ -6498,7 +6498,7 @@
       }
     },
     {
-      "id": 232,
+      "id": 282,
       "name": "Redmi Note 13 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 61312,
@@ -6538,7 +6538,7 @@
       }
     },
     {
-      "id": 233,
+      "id": 283,
       "name": "Redmi Note 13 (5G, 256 GB)",
       "category": "mobiles",
       "price": 64499,
@@ -6578,7 +6578,7 @@
       }
     },
     {
-      "id": 234,
+      "id": 284,
       "name": "Redmi 13 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 67686,
@@ -6618,7 +6618,7 @@
       }
     },
     {
-      "id": 235,
+      "id": 285,
       "name": "Motorola Edge 50 Ultra (5G, 256 GB)",
       "category": "mobiles",
       "price": 56477,
@@ -6658,7 +6658,7 @@
       }
     },
     {
-      "id": 236,
+      "id": 286,
       "name": "Motorola Edge 50 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 59664,
@@ -6698,7 +6698,7 @@
       }
     },
     {
-      "id": 237,
+      "id": 287,
       "name": "Motorola Edge 50 Fusion (5G, 256 GB)",
       "category": "mobiles",
       "price": 62851,
@@ -6738,7 +6738,7 @@
       }
     },
     {
-      "id": 238,
+      "id": 288,
       "name": "Motorola Razr 50 Ultra (5G, 256 GB)",
       "category": "mobiles",
       "price": 66038,
@@ -6778,7 +6778,7 @@
       }
     },
     {
-      "id": 239,
+      "id": 289,
       "name": "Motorola Razr 50 (5G, 256 GB)",
       "category": "mobiles",
       "price": 69225,
@@ -6818,7 +6818,7 @@
       }
     },
     {
-      "id": 240,
+      "id": 290,
       "name": "Motorola Moto G85 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 72412,
@@ -6858,7 +6858,7 @@
       }
     },
     {
-      "id": 241,
+      "id": 291,
       "name": "Motorola Moto G75 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 75599,
@@ -6898,7 +6898,7 @@
       }
     },
     {
-      "id": 242,
+      "id": 292,
       "name": "Vivo X200 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 64390,
@@ -6938,7 +6938,7 @@
       }
     },
     {
-      "id": 243,
+      "id": 293,
       "name": "Vivo X200 (5G, 256 GB)",
       "category": "mobiles",
       "price": 67577,
@@ -6978,7 +6978,7 @@
       }
     },
     {
-      "id": 244,
+      "id": 294,
       "name": "Vivo V40 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 70764,
@@ -7018,7 +7018,7 @@
       }
     },
     {
-      "id": 245,
+      "id": 295,
       "name": "Vivo V40 (5G, 256 GB)",
       "category": "mobiles",
       "price": 73951,
@@ -7058,7 +7058,7 @@
       }
     },
     {
-      "id": 246,
+      "id": 296,
       "name": "Vivo V30 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 77138,
@@ -7098,7 +7098,7 @@
       }
     },
     {
-      "id": 247,
+      "id": 297,
       "name": "Vivo V30 (5G, 256 GB)",
       "category": "mobiles",
       "price": 80325,
@@ -7138,7 +7138,7 @@
       }
     },
     {
-      "id": 248,
+      "id": 298,
       "name": "Vivo T3 Ultra (5G, 256 GB)",
       "category": "mobiles",
       "price": 83512,
@@ -7178,7 +7178,7 @@
       }
     },
     {
-      "id": 249,
+      "id": 299,
       "name": "OPPO Find X8 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 72303,
@@ -7218,7 +7218,7 @@
       }
     },
     {
-      "id": 250,
+      "id": 300,
       "name": "OPPO Find X8 (5G, 256 GB)",
       "category": "mobiles",
       "price": 75490,
@@ -7258,7 +7258,7 @@
       }
     },
     {
-      "id": 251,
+      "id": 301,
       "name": "OPPO Reno 13 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 78677,
@@ -7298,7 +7298,7 @@
       }
     },
     {
-      "id": 252,
+      "id": 302,
       "name": "OPPO Reno 13 (5G, 256 GB)",
       "category": "mobiles",
       "price": 81864,
@@ -7338,7 +7338,7 @@
       }
     },
     {
-      "id": 253,
+      "id": 303,
       "name": "OPPO Reno 12 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 85051,
@@ -7378,7 +7378,7 @@
       }
     },
     {
-      "id": 254,
+      "id": 304,
       "name": "OPPO Reno 12 (5G, 256 GB)",
       "category": "mobiles",
       "price": 88238,
@@ -7418,7 +7418,7 @@
       }
     },
     {
-      "id": 255,
+      "id": 305,
       "name": "OPPO F27 Pro+ (5G, 256 GB)",
       "category": "mobiles",
       "price": 91425,
@@ -7458,7 +7458,7 @@
       }
     },
     {
-      "id": 256,
+      "id": 306,
       "name": "realme GT 7 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 80216,
@@ -7498,7 +7498,7 @@
       }
     },
     {
-      "id": 257,
+      "id": 307,
       "name": "realme GT 6 (5G, 256 GB)",
       "category": "mobiles",
       "price": 83403,
@@ -7538,7 +7538,7 @@
       }
     },
     {
-      "id": 258,
+      "id": 308,
       "name": "realme GT 6T (5G, 256 GB)",
       "category": "mobiles",
       "price": 86590,
@@ -7578,7 +7578,7 @@
       }
     },
     {
-      "id": 259,
+      "id": 309,
       "name": "realme 13 Pro+ (5G, 256 GB)",
       "category": "mobiles",
       "price": 89777,
@@ -7618,7 +7618,7 @@
       }
     },
     {
-      "id": 260,
+      "id": 310,
       "name": "realme 13 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 92964,
@@ -7658,7 +7658,7 @@
       }
     },
     {
-      "id": 261,
+      "id": 311,
       "name": "realme P3 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 96151,
@@ -7698,7 +7698,7 @@
       }
     },
     {
-      "id": 262,
+      "id": 312,
       "name": "realme P3x 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 99338,
@@ -7738,7 +7738,7 @@
       }
     },
     {
-      "id": 263,
+      "id": 313,
       "name": "ASUS ROG Phone 9 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 88129,
@@ -7777,7 +7777,7 @@
       }
     },
     {
-      "id": 264,
+      "id": 314,
       "name": "ASUS ROG Phone 9 (5G, 256 GB)",
       "category": "mobiles",
       "price": 91316,
@@ -7816,7 +7816,7 @@
       }
     },
     {
-      "id": 265,
+      "id": 315,
       "name": "ASUS ROG Phone 8 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 94503,
@@ -7855,7 +7855,7 @@
       }
     },
     {
-      "id": 266,
+      "id": 316,
       "name": "ASUS ROG Phone 8 (5G, 256 GB)",
       "category": "mobiles",
       "price": 97690,
@@ -7894,7 +7894,7 @@
       }
     },
     {
-      "id": 267,
+      "id": 317,
       "name": "ASUS Zenfone 11 Ultra (5G, 256 GB)",
       "category": "mobiles",
       "price": 100877,
@@ -7933,7 +7933,7 @@
       }
     },
     {
-      "id": 268,
+      "id": 318,
       "name": "ASUS Zenfone 10 (5G, 256 GB)",
       "category": "mobiles",
       "price": 104064,
@@ -7972,7 +7972,7 @@
       }
     },
     {
-      "id": 269,
+      "id": 319,
       "name": "ASUS ROG Phone 7 Ultimate (5G, 256 GB)",
       "category": "mobiles",
       "price": 107251,
@@ -8011,7 +8011,7 @@
       }
     },
     {
-      "id": 270,
+      "id": 320,
       "name": "Nothing Phone (3) (5G, 256 GB)",
       "category": "mobiles",
       "price": 96042,
@@ -8051,7 +8051,7 @@
       }
     },
     {
-      "id": 271,
+      "id": 321,
       "name": "Nothing Phone (2a) Plus (5G, 256 GB)",
       "category": "mobiles",
       "price": 99229,
@@ -8091,7 +8091,7 @@
       }
     },
     {
-      "id": 272,
+      "id": 322,
       "name": "Nothing Phone (2a) (5G, 256 GB)",
       "category": "mobiles",
       "price": 102416,
@@ -8131,7 +8131,7 @@
       }
     },
     {
-      "id": 273,
+      "id": 323,
       "name": "Nothing Phone (2) (5G, 256 GB)",
       "category": "mobiles",
       "price": 105603,
@@ -8171,7 +8171,7 @@
       }
     },
     {
-      "id": 274,
+      "id": 324,
       "name": "Nothing Phone (1) (5G, 256 GB)",
       "category": "mobiles",
       "price": 108790,
@@ -8211,7 +8211,7 @@
       }
     },
     {
-      "id": 275,
+      "id": 325,
       "name": "Nothing Phone (2) Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 111977,
@@ -8251,7 +8251,7 @@
       }
     },
     {
-      "id": 276,
+      "id": 326,
       "name": "Nothing Phone (3a) (5G, 256 GB)",
       "category": "mobiles",
       "price": 115164,
@@ -8291,7 +8291,7 @@
       }
     },
     {
-      "id": 277,
+      "id": 327,
       "name": "Nothing Phone (3a) Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 118351,
@@ -8331,7 +8331,7 @@
       }
     },
     {
-      "id": 278,
+      "id": 328,
       "name": "Sony Xperia 1 VI (5G, 256 GB)",
       "category": "mobiles",
       "price": 103955,
@@ -8370,7 +8370,7 @@
       }
     },
     {
-      "id": 279,
+      "id": 329,
       "name": "Sony Xperia 5 V (5G, 256 GB)",
       "category": "mobiles",
       "price": 107142,
@@ -8409,7 +8409,7 @@
       }
     },
     {
-      "id": 280,
+      "id": 330,
       "name": "Sony Xperia 10 VI (5G, 256 GB)",
       "category": "mobiles",
       "price": 110329,
@@ -8448,7 +8448,7 @@
       }
     },
     {
-      "id": 281,
+      "id": 331,
       "name": "Sony Xperia 1 V (5G, 256 GB)",
       "category": "mobiles",
       "price": 113516,
@@ -8487,7 +8487,7 @@
       }
     },
     {
-      "id": 282,
+      "id": 332,
       "name": "Sony Xperia 5 IV (5G, 256 GB)",
       "category": "mobiles",
       "price": 116703,
@@ -8526,7 +8526,7 @@
       }
     },
     {
-      "id": 283,
+      "id": 333,
       "name": "Sony Xperia 10 V (5G, 256 GB)",
       "category": "mobiles",
       "price": 9890,
@@ -8565,7 +8565,7 @@
       }
     },
     {
-      "id": 284,
+      "id": 334,
       "name": "Sony Xperia Pro-I (5G, 256 GB)",
       "category": "mobiles",
       "price": 13077,
@@ -8604,7 +8604,7 @@
       }
     },
     {
-      "id": 285,
+      "id": 335,
       "name": "CMF Phone 1 (5G, 256 GB)",
       "category": "mobiles",
       "price": 111868,
@@ -8644,7 +8644,7 @@
       }
     },
     {
-      "id": 286,
+      "id": 336,
       "name": "CMF Phone 1 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 115055,
@@ -8684,7 +8684,7 @@
       }
     },
     {
-      "id": 287,
+      "id": 337,
       "name": "CMF Phone 2 (5G, 256 GB)",
       "category": "mobiles",
       "price": 118242,
@@ -8724,7 +8724,7 @@
       }
     },
     {
-      "id": 288,
+      "id": 338,
       "name": "CMF Phone 2 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 11429,
@@ -8764,7 +8764,7 @@
       }
     },
     {
-      "id": 289,
+      "id": 339,
       "name": "CMF Phone 1 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 14616,
@@ -8804,7 +8804,7 @@
       }
     },
     {
-      "id": 290,
+      "id": 340,
       "name": "CMF Phone Mini (5G, 256 GB)",
       "category": "mobiles",
       "price": 17803,
@@ -8844,7 +8844,7 @@
       }
     },
     {
-      "id": 291,
+      "id": 341,
       "name": "CMF Phone Plus (5G, 256 GB)",
       "category": "mobiles",
       "price": 20990,
@@ -8884,7 +8884,7 @@
       }
     },
     {
-      "id": 292,
+      "id": 342,
       "name": "CMF Phone Lite (5G, 256 GB)",
       "category": "mobiles",
       "price": 24177,
@@ -8924,7 +8924,7 @@
       }
     },
     {
-      "id": 293,
+      "id": 343,
       "name": "CMF Phone Edge (5G, 256 GB)",
       "category": "mobiles",
       "price": 27364,
@@ -8964,7 +8964,7 @@
       }
     },
     {
-      "id": 294,
+      "id": 344,
       "name": "CMF Phone Max (5G, 256 GB)",
       "category": "mobiles",
       "price": 30551,
@@ -9004,7 +9004,7 @@
       }
     },
     {
-      "id": 295,
+      "id": 345,
       "name": "Nokia X50 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 9781,
@@ -9043,7 +9043,7 @@
       }
     },
     {
-      "id": 296,
+      "id": 346,
       "name": "Nokia G60 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 12968,
@@ -9082,7 +9082,7 @@
       }
     },
     {
-      "id": 297,
+      "id": 347,
       "name": "Nokia G42 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 16155,
@@ -9121,7 +9121,7 @@
       }
     },
     {
-      "id": 298,
+      "id": 348,
       "name": "Nokia C32 (5G, 256 GB)",
       "category": "mobiles",
       "price": 19342,
@@ -9160,7 +9160,7 @@
       }
     },
     {
-      "id": 299,
+      "id": 349,
       "name": "Nokia C22 (5G, 256 GB)",
       "category": "mobiles",
       "price": 22529,
@@ -9199,7 +9199,7 @@
       }
     },
     {
-      "id": 300,
+      "id": 350,
       "name": "Nokia X30 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 25716,
@@ -9238,7 +9238,7 @@
       }
     },
     {
-      "id": 301,
+      "id": 351,
       "name": "Nokia G21 (5G, 256 GB)",
       "category": "mobiles",
       "price": 28903,
@@ -9277,7 +9277,7 @@
       }
     },
     {
-      "id": 302,
+      "id": 352,
       "name": "Honor Magic7 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 17694,
@@ -9317,7 +9317,7 @@
       }
     },
     {
-      "id": 303,
+      "id": 353,
       "name": "Honor Magic6 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 20881,
@@ -9357,7 +9357,7 @@
       }
     },
     {
-      "id": 304,
+      "id": 354,
       "name": "Honor 200 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 24068,
@@ -9397,7 +9397,7 @@
       }
     },
     {
-      "id": 305,
+      "id": 355,
       "name": "Honor 200 (5G, 256 GB)",
       "category": "mobiles",
       "price": 27255,
@@ -9437,7 +9437,7 @@
       }
     },
     {
-      "id": 306,
+      "id": 356,
       "name": "Honor 90 (5G, 256 GB)",
       "category": "mobiles",
       "price": 30442,
@@ -9477,7 +9477,7 @@
       }
     },
     {
-      "id": 307,
+      "id": 357,
       "name": "Honor X9c 5G (5G, 256 GB)",
       "category": "mobiles",
       "price": 33629,
@@ -9517,7 +9517,7 @@
       }
     },
     {
-      "id": 308,
+      "id": 358,
       "name": "Honor X8b (5G, 256 GB)",
       "category": "mobiles",
       "price": 36816,
@@ -9557,7 +9557,7 @@
       }
     },
     {
-      "id": 309,
+      "id": 359,
       "name": "Huawei Pura 70 Ultra (5G, 256 GB)",
       "category": "mobiles",
       "price": 25607,
@@ -9597,7 +9597,7 @@
       }
     },
     {
-      "id": 310,
+      "id": 360,
       "name": "Huawei Pura 70 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 28794,
@@ -9637,7 +9637,7 @@
       }
     },
     {
-      "id": 311,
+      "id": 361,
       "name": "Huawei Mate 70 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 31981,
@@ -9677,7 +9677,7 @@
       }
     },
     {
-      "id": 312,
+      "id": 362,
       "name": "Huawei Mate X6 (5G, 256 GB)",
       "category": "mobiles",
       "price": 35168,
@@ -9717,7 +9717,7 @@
       }
     },
     {
-      "id": 313,
+      "id": 363,
       "name": "Huawei Nova 13 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 38355,
@@ -9757,7 +9757,7 @@
       }
     },
     {
-      "id": 314,
+      "id": 364,
       "name": "Huawei Nova 12 (5G, 256 GB)",
       "category": "mobiles",
       "price": 41542,
@@ -9797,7 +9797,7 @@
       }
     },
     {
-      "id": 315,
+      "id": 365,
       "name": "Huawei P60 Pro (5G, 256 GB)",
       "category": "mobiles",
       "price": 44729,

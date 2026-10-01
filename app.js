@@ -768,7 +768,7 @@ const MOBILE_IMAGE_POOL = [
 "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=80"
 ];
 
-let nextMobileProductId = 200;
+let nextMobileProductId = 250;
 Object.entries(MOBILE_MODEL_NAMES).forEach(([brand, models], brandIndex) => {
 if (brand === "iPhone") return;
 const existingCount = PRODUCTS.filter(product => product.category === "mobiles" && getPhoneBrand(product) === brand).length;
@@ -2928,7 +2928,7 @@ ondismiss: () => {
 const button = document.querySelector('.pay-securely-btn');
 button.disabled = false;
 button.removeAttribute('aria-busy');
-showToast('Secure checkout closed. The pending order will expire automatically.');
+showToast('Secure checkout closed. Pending orders can be cancelled from the admin dashboard.');
 }
 }
 });

@@ -52,7 +52,6 @@ function tx(work) {
 }
 
 function seed() {
-  if (db.prepare('SELECT COUNT(*) AS n FROM products').get().n) return;
   const file = path.join(ROOT, 'data', 'products.json');
   if (!fs.existsSync(file)) throw new Error('Run npm run catalog:sync to create data/products.json.');
   const catalog = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -97,7 +96,13 @@ function bodyBuffer(req, max = 128 * 1024) {
 }
 
 async function readJson(req, max) {
-  try { return JSON.parse((await bodyBuffer(req, max)).toString('utf8') || '{}'); }
+  try {
+    const value = JSON.parse((await bodyBuffer(req, max)).toString('utf8') || '{}');
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      throw Object.assign(new Error('Request body must be a JSON object.'), { status: 400 });
+    }
+    return value;
+  }
   catch (error) {
     if (error.status) throw error;
     throw Object.assign(new Error('Request body must be valid JSON.'), { status: 400 });
@@ -190,14 +195,20 @@ function restoreStock(number) {
   for (const item of items) update.run(item.quantity, item.product_id);
   db.prepare('UPDATE orders SET stock_released=1,updated_at=CURRENT_TIMESTAMP WHERE order_number=?').run(number);
 }
-function expireOrders() {
-  const old = db.prepare("SELECT order_number FROM orders WHERE payment_method='razorpay' AND payment_status='pending' AND stock_released=0 AND datetime(created_at)<datetime('now','-30 minutes')").all();
-  for (const row of old) tx(() => {
-    restoreStock(row.order_number);
-    db.prepare("UPDATE orders SET payment_status='expired',fulfillment_status='cancelled',updated_at=CURRENT_TIMESTAMP WHERE order_number=? AND payment_status='pending'").run(row.order_number);
+function recordCapturedPayment(number, paymentId) {
+  return tx(() => {
+    const current = db.prepare('SELECT * FROM orders WHERE order_number=?').get(number);
+    if (!current) return 'missing';
+    if (current.stock_released || current.fulfillment_status === 'cancelled') {
+      db.prepare("UPDATE orders SET payment_status='review_required',gateway_payment_id=COALESCE(?,gateway_payment_id),updated_at=CURRENT_TIMESTAMP WHERE order_number=?")
+        .run(paymentId || null, number);
+      return 'review_required';
+    }
+    db.prepare("UPDATE orders SET payment_status='paid',fulfillment_status='confirmed',gateway_payment_id=COALESCE(?,gateway_payment_id),updated_at=CURRENT_TIMESTAMP WHERE order_number=?")
+      .run(paymentId || null, number);
+    return 'paid';
   });
 }
-
 function priceFor(product, input) {
   const options = product.iphoneOptions || product.mobileOptions || product.laptopOptions;
   if (!options) {
@@ -308,8 +319,13 @@ async function verifyPayment(data) {
   if (payment.order_id !== orderId || payment.amount !== order.total * 100 || payment.currency !== 'INR' || payment.status !== 'captured') {
     throw Object.assign(new Error('Payment is not captured yet. Order status will update after confirmation.'), { status: 409 });
   }
-  tx(() => db.prepare("UPDATE orders SET payment_status='paid',fulfillment_status='confirmed',gateway_payment_id=?,updated_at=CURRENT_TIMESTAMP WHERE order_number=?")
-    .run(paymentId, number));
+  if (order.stock_released || order.fulfillment_status === 'cancelled') {
+    recordCapturedPayment(number, paymentId);
+    throw Object.assign(new Error('Payment arrived after this order was cancelled. Contact the store before placing another order.'), { status: 409 });
+  }
+  if (recordCapturedPayment(number, paymentId) === 'review_required') {
+    throw Object.assign(new Error('Payment arrived after this order was cancelled. Contact the store before placing another order.'), { status: 409 });
+  }
   return { order: getOrder(number) };
 }
 
@@ -323,7 +339,7 @@ function imageUrl(value) {
 }
 function productFields(input, previous = {}) {
   const name = text(input.name ?? previous.name, 2, 120, 'Product name');
-  if (/[<>]/.test(name)) throw Object.assign(new Error('Product name cannot contain HTML tags.'), { status: 400 });
+  if (/[<>"]/.test(name)) throw Object.assign(new Error('Product name cannot contain HTML tags or double quotes.'), { status: 400 });
   const category = text(input.category ?? previous.category, 2, 30, 'Category').toLowerCase();
   if (!categories.has(category)) throw Object.assign(new Error('Choose a valid category.'), { status: 400 });
   const price = Number(input.price ?? previous.price);
@@ -404,10 +420,7 @@ async function api(req, res, url) {
     const entity = event.payload?.payment?.entity || event.payload?.order?.entity;
     if (['payment.captured', 'order.paid'].includes(event.event) && entity?.order_id) {
       const order = db.prepare('SELECT * FROM orders WHERE gateway_order_id=?').get(entity.order_id);
-      if (order && Number(entity.amount) === order.total * 100 && entity.currency === 'INR') {
-        tx(() => db.prepare("UPDATE orders SET payment_status='paid',fulfillment_status='confirmed',gateway_payment_id=COALESCE(?,gateway_payment_id),updated_at=CURRENT_TIMESTAMP WHERE order_number=?")
-          .run(entity.id || null, order.order_number));
-      }
+      if (order && Number(entity.amount) === order.total * 100 && entity.currency === 'INR') recordCapturedPayment(order.order_number, entity.id);
     } else if (event.event === 'payment.failed' && entity?.order_id) {
       const order = db.prepare('SELECT * FROM orders WHERE gateway_order_id=?').get(entity.order_id);
       if (order && order.payment_status === 'pending') tx(() => {
@@ -449,6 +462,16 @@ async function api(req, res, url) {
     return send(res, 200, { removed: true });
   }
   if (req.method === 'GET' && route === '/api/admin/orders') return send(res, 200, { orders: adminOrderList() });
+  const paymentRoute = route.match(/^\/api\/admin\/orders\/([A-Z0-9-]+)\/payment$/i);
+  if (paymentRoute && req.method === 'PATCH') {
+    const number = paymentRoute[1].toUpperCase();
+    const order = db.prepare('SELECT * FROM orders WHERE order_number=?').get(number);
+    if (!order) return send(res, 404, { error: 'Order not found.' });
+    if (order.payment_method !== 'cod') return send(res, 409, { error: 'Online payment status is verified by the payment provider.' });
+    db.prepare("UPDATE orders SET payment_status='paid',updated_at=CURRENT_TIMESTAMP WHERE order_number=?")
+      .run(number);
+    return send(res, 200, { order: getOrder(number) });
+  }
   const orderRoute = route.match(/^\/api\/admin\/orders\/([A-Z0-9-]+)$/i);
   if (orderRoute && req.method === 'PATCH') {
     const data = await readJson(req);
@@ -458,6 +481,9 @@ async function api(req, res, url) {
     const number = orderRoute[1].toUpperCase();
     const order = db.prepare('SELECT * FROM orders WHERE order_number=?').get(number);
     if (!order) return send(res, 404, { error: 'Order not found.' });
+    if (order.stock_released && status !== 'cancelled') return send(res, 409, { error: 'A cancelled order cannot be reopened. Create a new order instead.' });
+    if (status === 'cancelled' && order.payment_status === 'paid') return send(res, 409, { error: 'A paid order needs a refund first. Refunds are not configured in this dashboard.' });
+    if (status === 'cancelled' && ['shipped', 'delivered'].includes(order.fulfillment_status)) return send(res, 409, { error: 'A shipped or delivered order needs a return workflow; it cannot be cancelled here.' });
     if (order.payment_method === 'razorpay' && order.payment_status !== 'paid' && status !== 'cancelled') return send(res, 409, { error: 'An online order must be paid before it can be processed.' });
     tx(() => {
       if (status === 'cancelled') restoreStock(number);
@@ -499,9 +525,6 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-expireOrders();
-const expiryTimer = setInterval(expireOrders, 5 * 60 * 1000);
-expiryTimer.unref();
 server.listen(PORT, HOST, () => {
   console.log('Tuhin Enterprise backend: http://' + HOST + ':' + PORT);
   console.log('Admin dashboard: http://' + HOST + ':' + PORT + '/admin.html');
@@ -509,7 +532,6 @@ server.listen(PORT, HOST, () => {
   if (!ADMIN_ON) console.log('Set a long ADMIN_PASSWORD in .env to enable the admin dashboard.');
 });
 function stop() {
-  clearInterval(expiryTimer);
   server.close(() => { db.close(); process.exit(0); });
 }
 process.on('SIGINT', stop);

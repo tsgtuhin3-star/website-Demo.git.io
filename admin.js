@@ -56,9 +56,30 @@ function renderProducts(query = '') {
   );
   for (const product of filtered) {
     const row = document.createElement('tr');
-    const name = element('td', 'product-name', product.name);
+    const nameCell = element('td', 'product-name');
+    const name = document.createElement('input');
+    name.type = 'text';
+    name.maxLength = 120;
+    name.value = product.name;
+    name.setAttribute('aria-label', 'Name for ' + product.name);
+    nameCell.appendChild(name);
     const category = element('td', 'category-cell', product.category);
-    const price = element('td', '', money(product.price));
+    const priceCell = document.createElement('td');
+    const price = document.createElement('input');
+    price.type = 'number';
+    price.min = '0';
+    price.step = '1';
+    price.value = String(product.price);
+    price.setAttribute('aria-label', 'Price for ' + product.name);
+    priceCell.appendChild(price);
+    const originalCell = document.createElement('td');
+    const originalPrice = document.createElement('input');
+    originalPrice.type = 'number';
+    originalPrice.min = '0';
+    originalPrice.step = '1';
+    originalPrice.value = String(product.originalPrice);
+    originalPrice.setAttribute('aria-label', 'Original price for ' + product.name);
+    originalCell.appendChild(originalPrice);
     const stockCell = document.createElement('td');
     const stock = document.createElement('input');
     stock.type = 'number';
@@ -67,7 +88,7 @@ function renderProducts(query = '') {
     stock.value = String(product.stock);
     stock.setAttribute('aria-label', 'Stock for ' + product.name);
     stockCell.appendChild(stock);
-    const actions = document.createElement('td');
+    const actions = element('td', 'product-actions');
     const save = element('button', 'button small', 'Save');
     save.type = 'button';
     save.addEventListener('click', async () => {
@@ -76,24 +97,47 @@ function renderProducts(query = '') {
       try {
         await api('/api/admin/products/' + product.id, {
           method: 'PATCH',
-          body: JSON.stringify({ stock: Number(stock.value) })
+          body: JSON.stringify({
+            name: name.value.trim(),
+            price: Number(price.value),
+            originalPrice: Number(originalPrice.value),
+            stock: Number(stock.value)
+          })
         });
+        product.name = name.value.trim();
+        product.price = Number(price.value);
+        product.originalPrice = Number(originalPrice.value);
         product.stock = Number(stock.value);
-        inventoryMessage.textContent = product.name + ' stock updated.';
+        inventoryMessage.textContent = product.name + ' updated.';
       } catch (error) {
         inventoryMessage.textContent = error.message;
       } finally {
         save.disabled = false;
       }
     });
-    actions.appendChild(save);
-    row.append(name, category, price, stockCell, actions);
+    const remove = element('button', 'button danger small', 'Remove');
+    remove.type = 'button';
+    remove.addEventListener('click', async () => {
+      if (!window.confirm('Remove ' + product.name + ' from the storefront?')) return;
+      remove.disabled = true;
+      inventoryMessage.textContent = '';
+      try {
+        await api('/api/admin/products/' + product.id, { method: 'DELETE' });
+        inventoryMessage.textContent = product.name + ' removed.';
+        await loadProducts();
+      } catch (error) {
+        inventoryMessage.textContent = error.message;
+        remove.disabled = false;
+      }
+    });
+    actions.append(save, remove);
+    row.append(nameCell, category, priceCell, originalCell, stockCell, actions);
     productRows.appendChild(row);
   }
   if (!filtered.length) {
     const row = document.createElement('tr');
     const cell = element('td', 'empty', 'No matching products.');
-    cell.colSpan = 5;
+    cell.colSpan = 6;
     row.appendChild(cell);
     productRows.appendChild(row);
   }
@@ -122,10 +166,38 @@ async function loadOrders() {
     card.appendChild(element('p', 'order-items', summary));
     card.appendChild(element('p', 'order-address', order.address + ', ' + order.city + ' ' + order.postalCode));
     card.appendChild(element('p', 'order-payment', 'Payment: ' + order.paymentMethod + ' · ' + order.paymentStatus));
+    if (order.paymentMethod === 'cod' && order.paymentStatus === 'cod_due') {
+      const collect = element('button', 'button secondary small', 'Mark cash collected');
+      collect.type = 'button';
+      collect.addEventListener('click', async () => {
+        collect.disabled = true;
+        try {
+          await api('/api/admin/orders/' + encodeURIComponent(order.orderNumber) + '/payment', {
+            method: 'PATCH',
+            body: '{}'
+          });
+          ordersMessage.textContent = order.orderNumber + ' marked as paid.';
+          await loadOrders();
+        } catch (error) {
+          ordersMessage.textContent = error.message;
+          collect.disabled = false;
+        }
+      });
+      card.appendChild(collect);
+    }
     const controls = element('div', 'order-controls');
     const select = document.createElement('select');
     select.setAttribute('aria-label', 'Fulfillment status for ' + order.orderNumber);
-    for (const status of ['confirmed', 'processing', 'shipped', 'delivered', 'cancelled']) {
+    const statuses = ['confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!statuses.includes(order.fulfillmentStatus)) {
+      const current = document.createElement('option');
+      current.value = order.fulfillmentStatus;
+      current.textContent = order.fulfillmentStatus.replaceAll('_', ' ');
+      current.selected = true;
+      current.disabled = true;
+      select.appendChild(current);
+    }
+    for (const status of statuses) {
       const option = document.createElement('option');
       option.value = status;
       option.textContent = status[0].toUpperCase() + status.slice(1);

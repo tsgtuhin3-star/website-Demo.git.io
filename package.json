@@ -1,0 +1,13 @@
+{
+  "name": "tuhin-enterprise-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local ecommerce backend for the Tuhin Enterprise storefront",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "catalog:sync": "node scripts/sync-catalog.cjs"
+  }
+}

@@ -37,6 +37,8 @@ input:focus, select:focus, textarea:focus { border-color: #2874f0; outline: 3px 
 .button:disabled { opacity: .6; cursor: wait; }
 .button.secondary { border: 1px solid #d1dbe8; background: #fff; color: #24334b; }
 .button.secondary:hover { background: #f1f5fa; }
+.button.danger { background: #b8323a; }
+.button.danger:hover { background: #93252c; }
 .button.small { min-height: 33px; padding: 7px 11px; white-space: nowrap; }
 .page-heading, .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .section-heading { margin-bottom: 18px; }
@@ -52,8 +54,10 @@ table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { padding: 10px 12px; border-bottom: 1px solid #edf1f6; text-align: left; }
 th { position: sticky; top: 0; z-index: 1; background: #f7f9fc; color: #60708a; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; }
 td.product-name { min-width: 260px; font-weight: 650; }
+td.product-name input { width: 100%; min-width: 220px; }
 td.category-cell { color: #69788e; text-transform: capitalize; }
 td input { width: 105px; padding: 7px 9px; }
+td.product-actions { display: flex; gap: 6px; }
 .empty { padding: 24px; color: #68778d; text-align: center; }
 .orders-list { display: grid; gap: 12px; }
 .order-card { padding: 17px; border: 1px solid #e4eaf2; border-radius: 11px; }
