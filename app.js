@@ -894,6 +894,116 @@ const product = {
 IPHONE_PRODUCTS.push(product);
 });
 
+const MOBILE_COLOUR_PALETTES = {
+  Samsung: ["Onyx Black", "Titanium Gray", "Silver Shadow", "Mint", "Violet"],
+  "Google Pixel": ["Obsidian", "Porcelain", "Bay", "Hazel", "Peony"],
+  OnePlus: ["Black", "Emerald Green", "Cool Blue", "Silver"],
+  Xiaomi: ["Black", "White", "Jade Green", "Blue"],
+  Redmi: ["Titan Black", "Fusion Purple", "Arctic White", "Ocean Blue"],
+  Motorola: ["Black", "Luxe Lavender", "Marshmallow Blue", "Forest Grey"],
+  Vivo: ["Asteroid Black", "Titanium Grey", "Blue", "Sunset Orange"],
+  OPPO: ["Pearl White", "Space Black", "Misty Purple", "Ocean Blue"],
+  realme: ["Fluid Silver", "Razor Green", "Black", "Blue"],
+  ASUS: ["Phantom Black", "Storm White", "Phantom Blue"],
+  Nothing: ["Dark Grey", "White", "Black"],
+  "Sony Xperia": ["Black", "Khaki Green", "Platinum Silver"],
+  Nokia: ["Cloudy Blue", "Ice White", "Charcoal"],
+  Honor: ["Moonlight White", "Black", "Emerald Green", "Ocean Cyan"],
+  Huawei: ["Black", "White", "Blue", "Purple"],
+  CMF: ["Black", "Light Green", "Orange", "Blue"]
+};
+
+function getBaseMobileRam(product, specs) {
+const ramMatch = specs.match(/\b(\d{1,2})\s*GB\s*RAM\b/i)
+  || specs.match(/\b(\d{1,2})\s*GB\s*\|\s*\d+\s*GB\s*ROM\b/i);
+if (ramMatch) return Number(ramMatch[1]);
+if (product.price >= 80000) return 12;
+if (product.price >= 40000) return 8;
+return 6;
+}
+
+function getMobileRamChoices(ramBase) {
+let choices = [4, 6];
+if (ramBase >= 6) choices = [4, 6, 8];
+if (ramBase >= 8) choices = [6, 8, 12];
+if (ramBase >= 12) choices = [8, 12, 16];
+if (ramBase >= 16) choices = [12, 16];
+if (!choices.includes(ramBase)) choices.push(ramBase);
+return choices.sort((left, right) => left - right);
+}
+
+function getBaseMobileStorage(product, specs) {
+const storageMatch = specs.match(/\b(\d+(?:\.\d+)?)\s*(TB|GB)\s*ROM\b/i);
+let storageValue = getStorageFromProductName(product.name);
+if (storageMatch) {
+  storageValue = Number(storageMatch[1]);
+  if (storageMatch[2].toUpperCase() === "TB") storageValue *= 1024;
+}
+return storageValue >= 1000 ? 1024 : Math.max(64, storageValue);
+}
+
+function getStorageFromProductName(name) {
+const openParenthesis = name.indexOf("(");
+if (openParenthesis === -1) return 256;
+const closeParenthesis = name.indexOf(")", openParenthesis);
+const detailsEnd = closeParenthesis === -1 ? name.length : closeParenthesis;
+const details = name.slice(openParenthesis + 1, detailsEnd);
+const storagePart = details.split(",").map(part => part.trim()).find(part => /^\d+(?:\.\d+)?\s*(?:TB|GB)$/i.test(part));
+if (!storagePart) return 256;
+const [amount, unit] = storagePart.split(/\s+/);
+const value = Number(amount);
+return unit.toUpperCase() === "TB" ? value * 1024 : value;
+}
+
+function getMobileStorageChoices(storageBase, price) {
+if (storageBase <= 64) return [64, 128, 256];
+if (storageBase <= 128) return [128, 256, 512];
+if (storageBase <= 256) return price >= 80000 ? [256, 512, 1024] : [128, 256, 512];
+if (storageBase <= 512) return price >= 80000 ? [256, 512, 1024] : [256, 512];
+return [512, 1024];
+}
+
+function getMobileColourChoices(product) {
+const brand = getPhoneBrand(product);
+const palette = MOBILE_COLOUR_PALETTES[brand] || ["Black", "Silver", "Blue", "Green"];
+const openParenthesis = product.name.indexOf("(");
+const closeParenthesis = product.name.indexOf(")", openParenthesis);
+let details = "";
+if (openParenthesis !== -1) {
+  const detailsEnd = closeParenthesis === -1 ? product.name.length : closeParenthesis;
+  details = product.name.slice(openParenthesis + 1, detailsEnd);
+}
+const colorCandidate = details.split(",")[0].trim();
+const isNetworkLabel = ["5G", "4G", "LTE", "Wi-Fi"].includes(colorCandidate.toUpperCase());
+let modelColor = colorCandidate;
+if (isNetworkLabel) modelColor = "";
+return modelColor
+  ? [modelColor, ...palette.filter(color => color.toLowerCase() !== modelColor.toLowerCase()).slice(0, 3)]
+  : palette.slice(0, 4);
+}
+
+function getAndroidMobileOptions(product) {
+const specs = product.specs.join(" ");
+const ramBase = getBaseMobileRam(product, specs);
+const storageBase = getBaseMobileStorage(product, specs);
+const storageChoices = getMobileStorageChoices(storageBase, product.price);
+if (!storageChoices.includes(storageBase)) storageChoices.push(storageBase);
+storageChoices.sort((left, right) => left - right);
+
+return {
+  ram: getMobileRamChoices(ramBase).map(value => `${value} GB`),
+  storage: storageChoices.map(value => value === 1024 ? "1 TB" : `${value} GB`),
+  colors: getMobileColourChoices(product),
+  defaultRam: `${ramBase} GB`,
+  defaultStorage: storageBase === 1024 ? "1 TB" : `${storageBase} GB`
+};
+}
+
+PRODUCTS.filter(product => product.category === "mobiles" && !product.name.startsWith("Apple iPhone"))
+  .forEach(product => {
+    product.mobileOptions = getAndroidMobileOptions(product);
+  });
+
 function findProductById(productId) {
 return PRODUCTS.find(product => product.id === productId)
 || IPHONE_PRODUCTS.find(product => product.id === productId);
@@ -1677,7 +1787,16 @@ return true;
 });
 
 count.textContent = `${phones.length} product${phones.length === 1 ? '' : 's'} available`;
-grid.innerHTML = phones.map(phone => `
+grid.innerHTML = phones.map(phone => {
+const options = phone.iphoneOptions || phone.mobileOptions;
+let optionSummary = '';
+let actionButton = `<button type="button" class="add-cart-btn" onclick="addToCart(${phone.id}, event)">Add to Cart</button>`;
+if (options) {
+  const ramOptions = phone.iphoneOptions ? [phone.iphoneOptions.ram] : phone.mobileOptions.ram;
+  optionSummary = `<p class="iphone-card-options">${ramOptions.join(" / ")} RAM · ${options.storage.length} storage choices · ${options.colors.length} colours</p>`;
+  actionButton = `<button type="button" class="add-cart-btn" onclick="openQuickView(${phone.id})">Choose options</button>`;
+}
+return `
     <article class="mobile-phone-card" data-phone-id="${phone.id}">
       <div class="mobile-phone-image" onclick="openQuickView(${phone.id})">
         <span class="mobile-phone-discount">${phone.discount}% OFF</span>
@@ -1692,18 +1811,17 @@ grid.innerHTML = phones.map(phone => `
           <strong>₹${phone.price.toLocaleString('en-IN')}</strong>
           <del>₹${phone.originalPrice.toLocaleString('en-IN')}</del>
         </div>
-        ${phone.iphoneOptions ? `<p class="iphone-card-options">${phone.iphoneOptions.ram} RAM · ${phone.iphoneOptions.storage.length} storage choices · ${phone.iphoneOptions.colors.length} colours</p>` : ''}
+        ${optionSummary}
         <p class="mobile-phone-offer">Free delivery · Tuhin Assured</p>
         <span class="mobile-price-note">Market reference price · offers may vary</span>
         <div class="mobile-phone-actions">
           <button type="button" class="quick-view-btn" onclick="openQuickView(${phone.id})">Quick View</button>
-          ${phone.iphoneOptions
-            ? `<button type="button" class="add-cart-btn" onclick="openQuickView(${phone.id})">Choose options</button>`
-            : `<button type="button" class="add-cart-btn" onclick="addToCart(${phone.id}, event)">Add to Cart</button>`}
+          ${actionButton}
         </div>
       </div>
     </article>
-`).join('');
+`;
+}).join('');
 
 hydrateProductImages(phones, '.mobile-phone-card', 'img');
 }
@@ -2056,7 +2174,7 @@ setTimeout(() => {
 }
 
 // 2. Update cart state
-const variantKey = variant ? `${variant.color}|${variant.storage}` : '';
+const variantKey = variant ? `${variant.color}|${variant.ram}|${variant.storage}` : '';
 const existing = state.cart.find(item => item.id === productId && (item.variantKey || '') === variantKey);
 if (existing) {
 existing.qty += 1;
@@ -2357,24 +2475,45 @@ if (!product) return;
 
 const modal = document.getElementById('quickViewModal');
 const details = document.getElementById('modalProductDetails');
-const iphoneOptions = product.iphoneOptions ? `
-  <section class="iphone-configurator" aria-label="Choose iPhone options">
-    <h4>Choose your iPhone</h4>
-    <div class="iphone-option-grid">
-      <label class="iphone-option-field" for="iphoneColor-${product.id}">
-        Colour
-        <select id="iphoneColor-${product.id}" onchange="updateIphoneVariantPrice(${product.id})">
-          ${product.iphoneOptions.colors.map(color => `<option value="${color}">${color}</option>`).join('')}
+const mobileOptions = product.iphoneOptions || product.mobileOptions;
+let mobileColourDefault = mobileOptions?.colors[0] || '';
+let mobileStorageDefault = mobileOptions?.storage[0] || '';
+let ramControl = '';
+let ramNote = '';
+if (product.mobileOptions) {
+  mobileColourDefault = product.mobileOptions.defaultColor || mobileColourDefault;
+  mobileStorageDefault = product.mobileOptions.defaultStorage;
+  ramControl = `
+      <label class="iphone-option-field" for="mobileRam-${product.id}">
+        RAM
+        <select id="mobileRam-${product.id}" onchange="updateMobileVariantPrice(${product.id})">
+          ${product.mobileOptions.ram.map(ram => `<option value="${ram}" ${ram === product.mobileOptions.defaultRam ? 'selected' : ''}>${ram}</option>`).join('')}
         </select>
       </label>
-      <label class="iphone-option-field" for="iphoneStorage-${product.id}">
+  `;
+  ramNote = 'Select RAM, storage and colour. Price updates with your selected configuration.';
+} else if (product.iphoneOptions) {
+  ramNote = `${product.iphoneOptions.ram} RAM · RAM is fixed for this iPhone; storage and colour are selectable.`;
+}
+const mobileOptionControls = mobileOptions ? `
+  <section class="iphone-configurator" aria-label="Choose mobile options">
+    <h4>Choose your phone</h4>
+    <div class="iphone-option-grid">
+      <label class="iphone-option-field" for="mobileColor-${product.id}">
+        Colour
+        <select id="mobileColor-${product.id}" onchange="updateMobileVariantPrice(${product.id})">
+          ${mobileOptions.colors.map(color => `<option value="${color}" ${color === mobileColourDefault ? 'selected' : ''}>${color}</option>`).join('')}
+        </select>
+      </label>
+      ${ramControl}
+      <label class="iphone-option-field" for="mobileStorage-${product.id}">
         Storage (ROM)
-        <select id="iphoneStorage-${product.id}" onchange="updateIphoneVariantPrice(${product.id})">
-          ${product.iphoneOptions.storage.map(storage => `<option value="${storage}">${storage}</option>`).join('')}
+        <select id="mobileStorage-${product.id}" onchange="updateMobileVariantPrice(${product.id})">
+          ${mobileOptions.storage.map(storage => `<option value="${storage}" ${storage === mobileStorageDefault ? 'selected' : ''}>${storage}</option>`).join('')}
         </select>
       </label>
     </div>
-    <p class="iphone-ram-note">${product.iphoneOptions.ram} RAM · RAM is fixed for this model; storage and colour are selectable.</p>
+    <p class="iphone-ram-note">${ramNote}</p>
   </section>
 ` : '';
 
@@ -2397,15 +2536,15 @@ ${product.assured ? '<span class="assured-badge">✔ Assured</span>' : ''}
       <span class="price-discount-percent" id="iphoneVariantDiscount" style="font-size: 16px;">${product.discount}% off</span>
     </div>
 
-    ${iphoneOptions}
+    ${mobileOptionControls}
     <h4 class="modal-highlights-title">Highlights & Specifications:</h4>
     <ul class="modal-specs-list">
       ${product.specs.map(s => `<li>${s}</li>`).join('')}
     </ul>
 
     <div style="margin-top: auto; display: flex; gap: 12px;">
-      <button class="add-cart-btn" style="padding: 12px; font-size: 14px;" onclick="${product.iphoneOptions
-        ? `addSelectedIphoneToCart(${product.id}, event)`
+      <button class="add-cart-btn" style="padding: 12px; font-size: 14px;" onclick="${mobileOptions
+        ? `addSelectedMobileToCart(${product.id}, event)`
         : `addToCart(${product.id}, event); closeQuickView();`}">
         <span>🛒 Add to Cart</span>
       </button>
@@ -2418,27 +2557,40 @@ ${product.assured ? '<span class="assured-badge">✔ Assured</span>' : ''}
 modal.classList.add('open');
 }
 
-function getSelectedIphoneVariant(product) {
-const colorSelect = document.getElementById(`iphoneColor-${product.id}`);
-const storageSelect = document.getElementById(`iphoneStorage-${product.id}`);
-if (!product.iphoneOptions || !colorSelect || !storageSelect) return null;
+function getSelectedMobileVariant(product) {
+const options = product.iphoneOptions || product.mobileOptions;
+const colorSelect = document.getElementById(`mobileColor-${product.id}`);
+const ramSelect = document.getElementById(`mobileRam-${product.id}`);
+const storageSelect = document.getElementById(`mobileStorage-${product.id}`);
+if (!options || !colorSelect || !storageSelect) return null;
 
-const storageIndex = product.iphoneOptions.storage.indexOf(storageSelect.value);
+const storageIndex = options.storage.indexOf(storageSelect.value);
+const defaultStorage = product.mobileOptions?.defaultStorage || options.storage[0];
+const defaultStorageIndex = options.storage.indexOf(defaultStorage);
 const storageStep = Math.max(2500, Math.round(product.price * 0.1 / 100) * 100);
-const price = product.price + Math.max(0, storageIndex) * storageStep;
+let price = product.price + (storageIndex - defaultStorageIndex) * storageStep;
+let ram = options.ram;
+if (product.mobileOptions && ramSelect) {
+ const ramIndex = options.ram.indexOf(ramSelect.value);
+ const defaultRamIndex = options.ram.indexOf(product.mobileOptions.defaultRam);
+ const ramStep = Math.max(1500, Math.round(product.price * 0.045 / 100) * 100);
+ price += (ramIndex - defaultRamIndex) * ramStep;
+ ram = ramSelect.value;
+}
+price = Math.max(999, price);
 const originalPrice = Math.ceil(price * product.originalPrice / product.price / 100) * 100;
 return {
  color: colorSelect.value,
  storage: storageSelect.value,
- ram: product.iphoneOptions.ram,
+ ram,
  price,
  originalPrice
 };
 }
 
-function updateIphoneVariantPrice(productId) {
+function updateMobileVariantPrice(productId) {
 const product = findProductById(productId);
-const variant = product && getSelectedIphoneVariant(product);
+const variant = product && getSelectedMobileVariant(product);
 if (!variant) return;
 
 document.getElementById('iphoneVariantPrice').textContent = `₹${variant.price.toLocaleString('en-IN')}`;
@@ -2447,12 +2599,12 @@ const discount = Math.round((1 - variant.price / variant.originalPrice) * 100);
 document.getElementById('iphoneVariantDiscount').textContent = `${discount}% off`;
 }
 
-function addSelectedIphoneToCart(productId, event) {
+function addSelectedMobileToCart(productId, event) {
 const product = findProductById(productId);
 if (!product) return;
-const variant = getSelectedIphoneVariant(product);
+const variant = getSelectedMobileVariant(product);
 if (!variant) {
- showToast('Please select an iPhone colour and storage option.');
+ showToast('Please select your mobile colour, RAM and storage options.');
  return;
 }
 addToCart(productId, event, variant);
