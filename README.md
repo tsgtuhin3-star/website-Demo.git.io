@@ -20,7 +20,13 @@ The storefront's customer sign-in panel is still a browser-only demo. Checkout w
 
 Cash on Delivery works after stock has been added in the admin dashboard. The server recalculates every item and variant price, checks stock in a database transaction, reserves stock, and stores the customer/order snapshot. The browser cannot set the final order total.
 
-Online payment is disabled until Razorpay credentials are provided in **.env**. Start with Razorpay test keys. For webhooks, configure the public endpoint **/api/payments/webhook** with a webhook secret and the **payment.captured**, **payment.failed**, and **order.paid** events. The server verifies the checkout signature and captured amount before marking an online order as paid. Card and UPI details are collected by Razorpay Checkout, not stored by this project. An online order that is left pending holds stock until it is cancelled from the dashboard or a payment-failure webhook releases it.
+Online payment is disabled until a Razorpay key ID and key secret are provided in **.env**. Start with Razorpay test keys, restart the server, and confirm **GET /api/config** reports `razorpayEnabled: true`. The checkout script is loaded before an order reserves stock, and Razorpay Checkout collects UPI/card details; this project never stores those details. If payment confirmation is delayed, use the checkout's **Check payment status** action and do not pay again.
+
+For payment status to stay synchronized when a customer closes checkout or a browser loses connectivity, configure the public HTTPS endpoint **/api/payments/webhook** with a webhook secret and the **payment.captured**, **payment.failed**, and **order.paid** events. A failed payment attempt does not release inventory because Razorpay allows retries on the same order. An abandoned order continues holding stock until it is cancelled from the admin dashboard. Set real inventory in the dashboard before testing checkout.
+
+The Node/SQLite backend must run on a Node-capable host; GitHub Pages only serves static files and cannot run this backend. A GitHub push updates the source repository, not the live payment server. Deploy the backend behind HTTPS and configure its environment secrets separately before taking real payments.
+
+Run the backend checks with **npm test**.
 
 ## Admin dashboard
 

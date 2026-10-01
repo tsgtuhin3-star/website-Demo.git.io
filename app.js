@@ -1121,8 +1121,11 @@ cart: JSON.parse(localStorage.getItem('fk_cart')) || [],
 wishlist: JSON.parse(localStorage.getItem('fk_wishlist')) || [],
 currentSlide: 0
 };
-let backendConfig = { razorpayEnabled: false, keyId: '' };
+let backendConfig = { available: false, razorpayEnabled: false, keyId: '' };
 let nextCartEntryId = 100000 + state.cart.reduce((max, item) => Math.max(max, item.cartEntryId || 0), 0);
+let activePaymentOrder = null;
+let paymentConfirmationPending = false;
+let razorpayScriptPromise = null;
 
 async function loadBackendStore() {
 try {
@@ -1130,40 +1133,38 @@ const [catalogResponse, configResponse] = await Promise.all([
 fetch('/api/products'),
 fetch('/api/config')
 ]);
-if (catalogResponse.ok) {
-const catalog = await catalogResponse.json();
-if (Array.isArray(catalog.products) && Array.isArray(catalog.iphoneProducts)) {
+if (!catalogResponse.ok || !configResponse.ok) throw new Error('The store backend returned an error.');
+const [catalog, config] = await Promise.all([catalogResponse.json(), configResponse.json()]);
+if (!Array.isArray(catalog.products) || !Array.isArray(catalog.iphoneProducts) ||
+   !config.payments || typeof config.payments.razorpayEnabled !== 'boolean') {
+throw new Error('The store backend returned an invalid response.');
+}
 PRODUCTS.splice(0, PRODUCTS.length, ...catalog.products);
 IPHONE_PRODUCTS.splice(0, IPHONE_PRODUCTS.length, ...catalog.iphoneProducts);
-}
-}
-if (configResponse.ok) {
-const config = await configResponse.json();
-backendConfig = config.payments || backendConfig;
-}
+backendConfig = { available: true, ...config.payments };
 } catch (error) {
-console.warn('Backend is unavailable. The local demo catalog is being shown.', error);
+backendConfig = { available: false, razorpayEnabled: false, keyId: '' };
+console.warn('Store backend could not be loaded.', error);
 }
 
-if (!backendConfig.razorpayEnabled) {
-document.querySelectorAll('.payment-method input[name="paymentMethod"]').forEach((input) => {
-if (input.value !== 'cod') {
-input.closest('.payment-method').hidden = true;
-input.closest('.payment-method').style.display = 'none';
+const onlinePayment = document.querySelector('.payment-method input[name="paymentMethod"][value="razorpay"]');
+if (onlinePayment) {
+onlinePayment.closest('.payment-method').hidden = !backendConfig.razorpayEnabled;
+onlinePayment.closest('.payment-method').style.display = backendConfig.razorpayEnabled ? '' : 'none';
 }
-});
+if (!backendConfig.razorpayEnabled) {
 const cashOnDelivery = document.querySelector('input[name="paymentMethod"][value="cod"]');
 if (cashOnDelivery) cashOnDelivery.checked = true;
 const note = document.querySelector('.payment-demo-note');
-if (note) note.textContent = 'Online checkout is not set up yet. Add Razorpay test or live keys to .env and restart the server.';
+if (note) {
+note.textContent = backendConfig.available
+? 'Online payments are unavailable until Razorpay test keys are added to .env and the server is restarted.'
+: 'Store backend is not connected. Start node server.js and open this store from http://127.0.0.1:3000.';
+}
 } else {
 const note = document.querySelector('.payment-demo-note');
 if (note) note.textContent = 'Online payments open in the secure payment provider checkout.';
 }
-const paymentExtra = document.getElementById('paymentExtra');
-if (paymentExtra) paymentExtra.style.display = 'none';
-const paymentReference = document.getElementById('paymentReference');
-if (paymentReference) paymentReference.required = false;
 }
 
 // ==========================================
@@ -2480,53 +2481,6 @@ document.getElementById('paymentInterface').classList.remove('open');
 document.body.classList.remove('payment-active');
 }
 
-function completePayment() {
-const requiredFields = ['checkoutName', 'checkoutPhone', 'checkoutAddress', 'checkoutCity', 'checkoutPin'];
-const missingField = requiredFields.find(id => !document.getElementById(id).value.trim());
-if (missingField) {
-document.getElementById(missingField).focus();
-showToast('Please complete your delivery details.');
-return;
-}
-
-const method = document.querySelector('input[name="paymentMethod"]').value;
-if (method !== 'cod' && !document.getElementById('paymentReference').value.trim()) {
-document.getElementById('paymentReference').focus();
-showToast(method === 'upi' ? 'Please enter your UPI ID.' : 'Please enter your card details.');
-return;
-}
-
-const identity = localStorage.getItem('te_identity') || 'Customer';
-const ordersKey = `te_orders_${identity}`;
-const savedOrders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
-const orderItems = state.cart.map((item) => {
-const product = findProductById(item.id);
-const name = item.variant && product
-  ? `${product.name} (${item.variant.color}, ${item.variant.storage}; ${item.variant.ram} RAM)`
-  : product?.name;
-return product ? { name, qty: item.qty } : null;
-}).filter(Boolean);
-const total = state.cart.reduce((sum, item) => {
-const product = findProductById(item.id);
-if (!product) return sum;
-const itemPrice = item.variant ? item.variant.price : product.price;
-return sum + itemPrice * item.qty;
-}, 0);
-savedOrders.unshift({
-id: `TE${Date.now().toString().slice(-6)}`,
-date: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
-items: orderItems,
-total,
-status: 'Confirmed'
-});
-localStorage.setItem(ordersKey, JSON.stringify(savedOrders));
-closePaymentInterface();
-state.cart = [];
-saveCart();
-updateCartBadge();
-showFarewellInterface();
-}
-
 function showFarewellInterface() {
 document.getElementById('farewellInterface').classList.add('open');
 document.body.classList.add('payment-active');
@@ -2535,30 +2489,6 @@ document.body.classList.add('payment-active');
 function closeFarewellInterface() {
 document.getElementById('farewellInterface').classList.remove('open');
 document.body.classList.remove('payment-active');
-}
-
-function initPaymentMethods() {
-const methods = document.querySelectorAll('.payment-method');
-const extra = document.getElementById('paymentExtra');
-const upiApps = document.getElementById('upiApps');
-const reference = document.getElementById('paymentReference');
-const apps = document.querySelectorAll('.upi-app');
-methods.forEach(method => {
-method.addEventListener('click', () => {
-methods.forEach(item => item.classList.remove('active'));
-method.classList.add('active');
-const selected = method.querySelector('input').value;
-extra.style.display = selected === 'cod' ? 'none' : 'block';
-upiApps.style.display = selected === 'upi' ? 'grid' : 'none';
-reference.placeholder = selected === 'upi' ? 'Enter UPI ID (example: name@upi)' : 'Card number / demo reference';
-});
-});
-apps.forEach(app => {
-app.addEventListener('click', () => {
-apps.forEach(item => item.classList.remove('active'));
-app.classList.add('active');
-});
-});
 }
 
 // ==========================================
@@ -2797,20 +2727,47 @@ setTimeout(() => toast.remove(), 400);
 // The checkout sends only product IDs and quantities. Prices and stock are
 // recalculated by the backend before an order is accepted.
 async function completePayment() {
-const requiredFields = ['checkoutName', 'checkoutPhone', 'checkoutAddress', 'checkoutCity', 'checkoutPin'];
-const missingField = requiredFields.find(id => !document.getElementById(id).value.trim());
-if (missingField) {
-document.getElementById(missingField).focus();
-showToast('Please complete your delivery details.');
-return;
-}
-
 const method = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cod';
 const button = document.querySelector('.pay-securely-btn');
 const previousMarkup = button.innerHTML;
 button.disabled = true;
 button.setAttribute('aria-busy', 'true');
 try {
+if (paymentConfirmationPending && activePaymentOrder) {
+const phone = document.getElementById('checkoutPhone').value.trim();
+const response = await fetch(`/api/orders/${encodeURIComponent(activePaymentOrder.order.orderNumber)}?phone=${encodeURIComponent(phone)}`);
+const result = await response.json().catch(() => ({}));
+if (!response.ok) throw new Error(result.error || 'Could not check this order status.');
+if (result.order?.paymentStatus === 'paid') {
+finishBackendOrder(result.order);
+return;
+}
+if (result.order?.paymentStatus === 'failed') {
+paymentConfirmationPending = false;
+throw new Error('The last payment attempt failed. Reopen the same online checkout to retry; your order is still reserved.');
+}
+throw new Error('Payment confirmation is still pending. Do not pay again; check this order again shortly.');
+}
+
+const requiredFields = ['checkoutName', 'checkoutPhone', 'checkoutAddress', 'checkoutCity', 'checkoutPin'];
+const missingField = requiredFields.find(id => !document.getElementById(id).value.trim());
+if (missingField) {
+document.getElementById(missingField).focus();
+throw new Error('Please complete your delivery details.');
+}
+
+if (activePaymentOrder) {
+if (method !== 'razorpay') throw new Error('An online payment is pending. Reopen that checkout before placing another order.');
+await startRazorpayCheckout(activePaymentOrder);
+return;
+}
+if (method === 'razorpay') {
+if (!backendConfig.available || !backendConfig.razorpayEnabled) {
+throw new Error('Online payments are not configured. Add Razorpay test keys to .env and restart the backend.');
+}
+await loadRazorpayCheckout();
+}
+
 const response = await fetch('/api/orders', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
@@ -2834,19 +2791,43 @@ ram: item.variant.ram
 }))
 })
 });
-const result = await response.json();
+const result = await response.json().catch(() => ({}));
 if (!response.ok) throw new Error(result.error || 'Could not place this order.');
 if (method === 'cod') {
 finishBackendOrder(result.order);
 return;
 }
+activePaymentOrder = result;
 await startRazorpayCheckout(result);
 } catch (error) {
 showToast(error.message || 'Backend se connect nahi ho paya. Please try again.');
+} finally {
+if (!paymentConfirmationPending) button.innerHTML = previousMarkup;
 button.disabled = false;
-button.innerHTML = previousMarkup;
 button.removeAttribute('aria-busy');
 }
+}
+
+function loadRazorpayCheckout() {
+if (window.Razorpay) return Promise.resolve();
+if (razorpayScriptPromise) return razorpayScriptPromise;
+razorpayScriptPromise = new Promise((resolve, reject) => {
+const script = document.createElement('script');
+script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+script.onload = () => {
+if (window.Razorpay) resolve();
+else {
+razorpayScriptPromise = null;
+reject(new Error('Razorpay checkout did not initialize correctly. Please try again.'));
+}
+};
+script.onerror = () => {
+razorpayScriptPromise = null;
+reject(new Error('Could not load Razorpay checkout. Check your internet connection and try again.'));
+};
+document.head.appendChild(script);
+});
+return razorpayScriptPromise;
 }
 
 function finishBackendOrder(order) {
@@ -2854,6 +2835,8 @@ if (!order) {
 showToast('Order response was missing. Please check your order status.');
 return;
 }
+activePaymentOrder = null;
+paymentConfirmationPending = false;
 const identity = localStorage.getItem('te_identity') || 'Customer';
 const ordersKey = 'te_orders_' + identity;
 const savedOrders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
@@ -2880,15 +2863,7 @@ async function startRazorpayCheckout(result) {
 if (!backendConfig.razorpayEnabled || !backendConfig.keyId || !result.razorpayOrder) {
 throw new Error('Secure online payment is not configured. Choose Cash on Delivery.');
 }
-if (!window.Razorpay) {
-await new Promise((resolve, reject) => {
-const script = document.createElement('script');
-script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-script.onload = resolve;
-script.onerror = () => reject(new Error('Could not load the secure payment page.'));
-document.head.appendChild(script);
-});
-}
+await loadRazorpayCheckout();
 const checkout = new window.Razorpay({
 key: backendConfig.keyId,
 amount: result.razorpayOrder.amount,
@@ -2913,12 +2888,15 @@ razorpay_payment_id: payment.razorpay_payment_id,
 razorpay_signature: payment.razorpay_signature
 })
 });
-const verified = await response.json();
+const verified = await response.json().catch(() => ({}));
 if (!response.ok) throw new Error(verified.error || 'Payment confirmation is still pending.');
 finishBackendOrder(verified.order);
 } catch (error) {
+paymentConfirmationPending = true;
 showToast(error.message || 'Payment confirmation is pending. Check the order status shortly.');
 const button = document.querySelector('.pay-securely-btn');
+const label = button.querySelector('.pay-action-label');
+if (label) label.textContent = 'Check payment status';
 button.disabled = false;
 button.removeAttribute('aria-busy');
 }
@@ -2931,6 +2909,9 @@ button.removeAttribute('aria-busy');
 showToast('Secure checkout closed. Pending orders can be cancelled from the admin dashboard.');
 }
 }
+});
+checkout.on('payment.failed', () => {
+showToast('This payment attempt failed. Retry securely from this checkout; your order remains reserved.');
 });
 checkout.open();
 }

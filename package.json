@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "catalog:sync": "node scripts/sync-catalog.cjs"
+    "catalog:sync": "node scripts/sync-catalog.cjs",
+    "test": "node --test"
   }
 }

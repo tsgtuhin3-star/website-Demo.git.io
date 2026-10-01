@@ -257,18 +257,16 @@ async function createOrder(data) {
   };
   if (!/^\d{6}$/.test(customer.postal)) throw Object.assign(new Error('Enter a 6-digit PIN code.'), { status: 400 });
   if (!['cod', 'razorpay'].includes(data.paymentMethod)) throw Object.assign(new Error('Choose Cash on Delivery or secure online checkout.'), { status: 400 });
-  if (data.paymentMethod === 'razorpay' && !RZP_ON) throw Object.assign(new Error('Online payment is not configured. Choose Cash on Delivery.'), { status: 503 });
+  if (data.paymentMethod === 'razorpay' && !RZP_ON) throw Object.assign(new Error('Online payment is not configured. Add Razorpay keys to .env or choose Cash on Delivery.'), { status: 503, expose: true });
 
   const lines = [];
-  const seen = new Set();
   let total = 0;
   for (const input of data.items) {
     const id = Number(input?.productId);
     const quantity = Number(input?.quantity);
-    if (!Number.isSafeInteger(id) || !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 10 || seen.has(id)) {
+    if (!Number.isSafeInteger(id) || !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 10) {
       throw Object.assign(new Error('Cart product or quantity is invalid.'), { status: 400 });
     }
-    seen.add(id);
     const row = db.prepare('SELECT * FROM products WHERE id=? AND active=1').get(id);
     if (!row) throw Object.assign(new Error('A product in the cart is unavailable.'), { status: 409 });
     const product = fromRow(row);
@@ -293,19 +291,23 @@ async function createOrder(data) {
 
   try {
     const gateway = await rzp('/orders', { method: 'POST', body: JSON.stringify({ amount: total * 100, currency: 'INR', receipt: number, notes: { orderNumber: number } }) });
+    if (typeof gateway.id !== 'string' || Number(gateway.amount) !== total * 100 || gateway.currency !== 'INR') {
+      throw new Error('Payment provider returned an invalid order.');
+    }
     db.prepare('UPDATE orders SET gateway_order_id=?,updated_at=CURRENT_TIMESTAMP WHERE order_number=?').run(gateway.id, number);
     return { order: getOrder(number), razorpayOrder: { id: gateway.id, amount: gateway.amount, currency: gateway.currency } };
-  } catch {
+  } catch (error) {
+    console.error('Razorpay order creation failed:', error.message);
     tx(() => {
       restoreStock(number);
       db.prepare("UPDATE orders SET payment_status='failed',fulfillment_status='cancelled',updated_at=CURRENT_TIMESTAMP WHERE order_number=?").run(number);
     });
-    throw Object.assign(new Error('Secure checkout could not start. No payment was taken.'), { status: 502 });
+    throw Object.assign(new Error('Secure checkout could not start. No payment was taken.'), { status: 502, expose: true });
   }
 }
 
 async function verifyPayment(data) {
-  if (!RZP_ON) throw Object.assign(new Error('Online payment is not configured.'), { status: 503 });
+  if (!RZP_ON) throw Object.assign(new Error('Online payment is not configured. Add Razorpay keys to .env.'), { status: 503, expose: true });
   const number = text(data.orderNumber, 6, 32, 'Order number');
   const orderId = text(data.razorpay_order_id, 4, 80, 'Payment order');
   const paymentId = text(data.razorpay_payment_id, 4, 80, 'Payment');
@@ -420,13 +422,14 @@ async function api(req, res, url) {
     const entity = event.payload?.payment?.entity || event.payload?.order?.entity;
     if (['payment.captured', 'order.paid'].includes(event.event) && entity?.order_id) {
       const order = db.prepare('SELECT * FROM orders WHERE gateway_order_id=?').get(entity.order_id);
-      if (order && Number(entity.amount) === order.total * 100 && entity.currency === 'INR') recordCapturedPayment(order.order_number, entity.id);
+      const paymentId = event.payload?.payment?.entity?.id || null;
+      if (order && Number(entity.amount) === order.total * 100 && entity.currency === 'INR') recordCapturedPayment(order.order_number, paymentId);
     } else if (event.event === 'payment.failed' && entity?.order_id) {
       const order = db.prepare('SELECT * FROM orders WHERE gateway_order_id=?').get(entity.order_id);
-      if (order && order.payment_status === 'pending') tx(() => {
-        restoreStock(order.order_number);
-        db.prepare("UPDATE orders SET payment_status='failed',fulfillment_status='cancelled',updated_at=CURRENT_TIMESTAMP WHERE order_number=?").run(order.order_number);
-      });
+      if (order && Number(entity.amount) === order.total * 100 && entity.currency === 'INR') {
+        db.prepare("UPDATE orders SET payment_status='failed',updated_at=CURRENT_TIMESTAMP WHERE order_number=? AND payment_status!='paid' AND stock_released=0 AND fulfillment_status!='cancelled'")
+          .run(order.order_number);
+      }
     }
     return send(res, 200, { received: true });
   }
@@ -520,7 +523,8 @@ const server = http.createServer(async (req, res) => {
   } catch (error) {
     const status = Number.isInteger(error.status) ? error.status : 500;
     if (status >= 500) console.error('Request failed:', error.message);
-    if (!res.headersSent) send(res, status, { error: status >= 500 ? 'Something went wrong. Please try again.' : error.message });
+    const message = error.expose ? error.message : status >= 500 ? 'Something went wrong. Please try again.' : error.message;
+    if (!res.headersSent) send(res, status, { error: message });
     else res.end();
   }
 });
