@@ -743,7 +743,7 @@ specs: ["Premium beauty formula", "Everyday easy-to-use application", "Suitable 
 });
 
 const MOBILE_MODEL_NAMES = {
-iPhone: ["Apple iPhone 16", "Apple iPhone 16 Plus", "Apple iPhone 16 Pro", "Apple iPhone 16 Pro Max", "Apple iPhone 15", "Apple iPhone 15 Plus", "Apple iPhone 15 Pro Max", "Apple iPhone 14", "Apple iPhone 13", "Apple iPhone SE"],
+iPhone: [],
 Samsung: ["Samsung Galaxy S25", "Samsung Galaxy S25+", "Samsung Galaxy S25 Ultra", "Samsung Galaxy S24 FE", "Samsung Galaxy Z Fold6", "Samsung Galaxy Z Flip6", "Samsung Galaxy A56 5G", "Samsung Galaxy A36 5G", "Samsung Galaxy M35 5G", "Samsung Galaxy F55 5G"],
 "Google Pixel": ["Google Pixel 9", "Google Pixel 9 Pro", "Google Pixel 9 Pro XL", "Google Pixel 8a", "Google Pixel 8", "Google Pixel 8 Pro", "Google Pixel 7a", "Google Pixel Fold", "Google Pixel 7", "Google Pixel 6a"],
 OnePlus: ["OnePlus 13", "OnePlus 13R", "OnePlus 12R", "OnePlus Nord 4", "OnePlus Nord CE4", "OnePlus Nord CE4 Lite", "OnePlus Open", "OnePlus 11R", "OnePlus 10 Pro", "OnePlus Nord 3"],
@@ -770,6 +770,7 @@ const MOBILE_IMAGE_POOL = [
 
 let nextMobileProductId = 200;
 Object.entries(MOBILE_MODEL_NAMES).forEach(([brand, models], brandIndex) => {
+if (brand === "iPhone") return;
 const existingCount = PRODUCTS.filter(product => product.category === "mobiles" && getPhoneBrand(product) === brand).length;
 models.slice(0, Math.max(0, 10 - existingCount)).forEach((name, modelIndex) => {
 const price = 8999 + ((brandIndex * 7913 + modelIndex * 3187) % 110000);
@@ -790,6 +791,113 @@ specs: ["5G smartphone with premium display", "High-resolution multi-camera syst
 });
 });
 });
+
+const IPHONE_MODEL_CATALOG = [];
+const IPHONE_PRODUCTS = [];
+const IPHONE_MODEL_OVERRIDES = {
+  "iPhone 15": { storage: ["128 GB", "256 GB", "512 GB"], ram: "6 GB" },
+  "iPhone 15 Plus": { storage: ["128 GB", "256 GB", "512 GB"], ram: "6 GB" },
+  "iPhone 15 Pro": { storage: ["128 GB", "256 GB", "512 GB", "1 TB"], ram: "8 GB" },
+  "iPhone 15 Pro Max": { storage: ["256 GB", "512 GB", "1 TB"], ram: "8 GB" },
+  "iPhone 5s": { colors: ["Gold", "Silver", "Space Gray"] },
+  "iPhone X": { storage: ["64 GB", "256 GB"], colors: ["Silver", "Space Gray"] },
+  "iPhone XR": { storage: ["64 GB", "128 GB", "256 GB"] },
+  "iPhone SE (1st generation)": {
+    storage: ["16 GB", "32 GB", "64 GB", "128 GB"],
+    colors: ["Gold", "Rose Gold", "Silver", "Space Gray"],
+    ram: "2 GB"
+  },
+  "iPhone SE (2nd generation)": { colors: ["Black", "Red", "White"] },
+  "iPhone SE (3rd generation)": { colors: ["Black", "Red", "White"] },
+  "iPhone XS": { storage: ["64 GB", "256 GB", "512 GB"] },
+  "iPhone XS Max": { storage: ["64 GB", "256 GB", "512 GB"] },
+  "iPhone 13": { storage: ["128 GB", "256 GB", "512 GB"] },
+  "iPhone 13 mini": { storage: ["128 GB", "256 GB", "512 GB"] },
+  "iPhone 16e": { storage: ["128 GB", "256 GB", "512 GB"], colors: ["Black", "White"] },
+  "iPhone 17": { storage: ["256 GB", "512 GB"], colors: ["Black", "White", "Mist Blue", "Sage", "Lavender"] },
+  "iPhone 17 Pro": { colors: ["Cosmic Orange", "Deep Blue", "Silver"], ram: "12 GB" },
+  "iPhone 17 Pro Max": {
+    storage: ["256 GB", "512 GB", "1 TB", "2 TB"],
+    colors: ["Cosmic Orange", "Deep Blue", "Silver"],
+    ram: "12 GB"
+  },
+  "iPhone Air": {
+    storage: ["256 GB", "512 GB", "1 TB"],
+    colors: ["Sky Blue", "Light Gold", "Cloud White", "Space Black"],
+    ram: "12 GB"
+  }
+};
+
+function addIphoneGeneration(year, models, standard) {
+models.forEach(([name, type]) => {
+const isPro = type === "pro" || type === "proMax";
+const override = IPHONE_MODEL_OVERRIDES[name] || {};
+const generationStorage = isPro && standard.proStorage ? standard.proStorage : standard.storage;
+const generationColors = isPro ? standard.proColors || standard.colors : standard.colors;
+let generationRam = standard.ram;
+if (isPro) generationRam = standard.proRam || standard.ram;
+else if (type === "plus") generationRam = standard.plusRam || standard.ram;
+const typePriceAdjustment = { standard: 0, plus: 10000, pro: 35000, proMax: 35000, mini: -12000, se: -12000 }[type];
+const startingPrice = Math.max(2999, standard.price + typePriceAdjustment);
+IPHONE_MODEL_CATALOG.push({
+  name,
+  year: name === "iPhone 16e" ? 2025 : year,
+  ram: override.ram || generationRam,
+  storage: [...(override.storage || generationStorage)],
+  colors: [...(override.colors || generationColors)],
+  startingPrice
+});
+});
+}
+
+[
+  [2007, [["iPhone (1st generation)", "standard"]], { ram: "128 MB", storage: ["4 GB", "8 GB", "16 GB"], colors: ["Silver"], price: 29900 }],
+  [2008, [["iPhone 3G", "standard"]], { ram: "128 MB", storage: ["8 GB", "16 GB"], colors: ["Black", "White"], price: 26900 }],
+  [2009, [["iPhone 3GS", "standard"]], { ram: "256 MB", storage: ["8 GB", "16 GB", "32 GB"], colors: ["Black", "White"], price: 29900 }],
+  [2010, [["iPhone 4", "standard"]], { ram: "512 MB", storage: ["8 GB", "16 GB", "32 GB"], colors: ["Black", "White"], price: 34900 }],
+  [2011, [["iPhone 4s", "standard"]], { ram: "512 MB", storage: ["8 GB", "16 GB", "32 GB", "64 GB"], colors: ["Black", "White"], price: 44900 }],
+  [2012, [["iPhone 5", "standard"]], { ram: "1 GB", storage: ["16 GB", "32 GB", "64 GB"], colors: ["Black", "White"], price: 45900 }],
+  [2013, [["iPhone 5c", "standard"], ["iPhone 5s", "standard"]], { ram: "1 GB", storage: ["16 GB", "32 GB", "64 GB"], colors: ["Blue", "Green", "Pink", "Yellow", "White"], price: 41900 }],
+  [2014, [["iPhone 6", "standard"], ["iPhone 6 Plus", "plus"]], { ram: "1 GB", storage: ["16 GB", "64 GB", "128 GB"], colors: ["Gold", "Silver", "Space Gray"], price: 45900 }],
+  [2015, [["iPhone 6s", "standard"], ["iPhone 6s Plus", "plus"]], { ram: "2 GB", storage: ["16 GB", "32 GB", "64 GB", "128 GB"], colors: ["Gold", "Rose Gold", "Silver", "Space Gray"], price: 46900 }],
+  [2016, [["iPhone SE (1st generation)", "se"], ["iPhone 7", "standard"], ["iPhone 7 Plus", "plus"]], { ram: "2 GB", storage: ["32 GB", "128 GB", "256 GB"], plusRam: "3 GB", colors: ["Black", "Jet Black", "Gold", "Rose Gold", "Silver", "Red"], proRam: "3 GB", proColors: ["Black", "Jet Black", "Gold", "Rose Gold", "Silver", "Red"], price: 39900 }],
+  [2017, [["iPhone 8", "standard"], ["iPhone 8 Plus", "plus"], ["iPhone X", "pro"]], { ram: "2 GB", storage: ["64 GB", "128 GB", "256 GB"], plusRam: "3 GB", colors: ["Gold", "Silver", "Space Gray"], proRam: "3 GB", proColors: ["Silver", "Space Gray"], price: 49900 }],
+  [2018, [["iPhone XR", "standard"], ["iPhone XS", "pro"], ["iPhone XS Max", "proMax"]], { ram: "3 GB", storage: ["64 GB", "128 GB", "256 GB"], colors: ["Blue", "Coral", "Black", "Red", "White", "Yellow"], proRam: "4 GB", proColors: ["Gold", "Silver", "Space Gray"], price: 54900 }],
+  [2019, [["iPhone 11", "standard"], ["iPhone 11 Pro", "pro"], ["iPhone 11 Pro Max", "proMax"]], { ram: "4 GB", storage: ["64 GB", "128 GB", "256 GB"], colors: ["Black", "Green", "Purple", "Red", "White", "Yellow"], proRam: "6 GB", proStorage: ["64 GB", "256 GB", "512 GB"], proColors: ["Gold", "Midnight Green", "Silver", "Space Gray"], price: 64900 }],
+  [2020, [["iPhone SE (2nd generation)", "se"], ["iPhone 12 mini", "mini"], ["iPhone 12", "standard"], ["iPhone 12 Pro", "pro"], ["iPhone 12 Pro Max", "proMax"]], { ram: "4 GB", storage: ["64 GB", "128 GB", "256 GB"], proRam: "6 GB", proStorage: ["128 GB", "256 GB", "512 GB"], colors: ["Black", "Blue", "Green", "Purple", "Red", "White"], proColors: ["Gold", "Graphite", "Pacific Blue", "Silver"], price: 49900 }],
+  [2021, [["iPhone 13 mini", "mini"], ["iPhone 13", "standard"], ["iPhone 13 Pro", "pro"], ["iPhone 13 Pro Max", "proMax"], ["iPhone SE (3rd generation)", "se"]], { ram: "4 GB", storage: ["64 GB", "128 GB", "256 GB"], proRam: "6 GB", proStorage: ["128 GB", "256 GB", "512 GB", "1 TB"], colors: ["Blue", "Green", "Midnight", "Pink", "Red", "Starlight"], proColors: ["Alpine Green", "Gold", "Graphite", "Sierra Blue", "Silver"], price: 49900 }],
+  [2022, [["iPhone 14", "standard"], ["iPhone 14 Plus", "plus"], ["iPhone 14 Pro", "pro"], ["iPhone 14 Pro Max", "proMax"]], { ram: "6 GB", storage: ["128 GB", "256 GB", "512 GB"], proRam: "6 GB", proStorage: ["128 GB", "256 GB", "512 GB", "1 TB"], colors: ["Blue", "Midnight", "Purple", "Red", "Starlight", "Yellow"], proColors: ["Deep Purple", "Gold", "Silver", "Space Black"], price: 69900 }],
+  [2023, [["iPhone 15", "standard"], ["iPhone 15 Plus", "plus"], ["iPhone 15 Pro", "pro"], ["iPhone 15 Pro Max", "proMax"]], { ram: "6 GB", storage: ["128 GB", "256 GB", "512 GB"], proRam: "8 GB", proStorage: ["128 GB", "256 GB", "512 GB", "1 TB"], colors: ["Black", "Blue", "Green", "Yellow", "Pink"], proColors: ["Black Titanium", "White Titanium", "Blue Titanium", "Natural Titanium"], price: 79900 }],
+  [2024, [["iPhone 16", "standard"], ["iPhone 16 Plus", "plus"], ["iPhone 16 Pro", "pro"], ["iPhone 16 Pro Max", "proMax"], ["iPhone 16e", "se"]], { ram: "8 GB", storage: ["128 GB", "256 GB", "512 GB"], proRam: "8 GB", proStorage: ["128 GB", "256 GB", "512 GB", "1 TB"], colors: ["Black", "White", "Pink", "Teal", "Ultramarine"], proColors: ["Black Titanium", "Desert Titanium", "Natural Titanium", "White Titanium"], price: 69900 }],
+  [2025, [["iPhone 17", "standard"], ["iPhone 17 Pro", "pro"], ["iPhone 17 Pro Max", "proMax"], ["iPhone Air", "standard"]], { ram: "8 GB", storage: ["128 GB", "256 GB", "512 GB"], proRam: "12 GB", proStorage: ["256 GB", "512 GB", "1 TB"], colors: ["Black", "White", "Mist Blue", "Sage", "Lavender"], proColors: ["Cosmic Orange", "Deep Blue", "Silver"], price: 82900 }]
+].forEach(([year, models, specs]) => addIphoneGeneration(year, models, specs));
+
+IPHONE_MODEL_CATALOG.forEach((model, modelIndex) => {
+const productId = 1000 + modelIndex;
+const price = model.startingPrice;
+const product = {
+  id: productId,
+  name: `Apple ${model.name}`,
+  category: "mobiles",
+  price,
+  originalPrice: Math.ceil(price * 1.12 / 100) * 100,
+  discount: 10,
+  rating: 4.6,
+  reviewsCount: "2,450",
+  image: MOBILE_IMAGE_POOL[modelIndex % MOBILE_IMAGE_POOL.length],
+  assured: true,
+  isDealOfDay: false,
+  dealTag: "Choose your iPhone",
+  iphoneOptions: model,
+  specs: [`${model.ram} RAM`, `${model.storage.join(" / ")} storage choices`, `${model.colors.length} available colours`, `Released ${model.year}`]
+};
+IPHONE_PRODUCTS.push(product);
+});
+
+function findProductById(productId) {
+return PRODUCTS.find(product => product.id === productId)
+|| IPHONE_PRODUCTS.find(product => product.id === productId);
+}
 
 const AUDIO_WEARABLE_NAMES = {
 Apple: ["AirPods Pro (2nd Gen)", "AirPods (3rd Gen)", "AirPods Max", "Apple Watch Series 10", "Apple Watch Ultra 2", "Apple Watch SE", "AirPods Pro USB-C", "Beats Studio Pro", "Beats Fit Pro", "Beats Solo 4"],
@@ -844,6 +952,7 @@ cart: JSON.parse(localStorage.getItem('fk_cart')) || [],
 wishlist: JSON.parse(localStorage.getItem('fk_wishlist')) || [],
 currentSlide: 0
 };
+let nextCartEntryId = 100000 + state.cart.reduce((max, item) => Math.max(max, item.cartEntryId || 0), 0);
 
 // ==========================================
 // 3. INITIALIZATION ON DOM LOAD
@@ -892,8 +1001,86 @@ const confirmPasswordField = document.querySelector('.confirm-password-field');
 const confirmPasswordInput = document.getElementById('confirmPassword');
 const passwordToggle = document.getElementById('passwordToggle');
 const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+const welcomeVoiceToggle = document.getElementById('loginVoiceToggle');
+const welcomeVoiceStatus = document.getElementById('loginVoiceStatus');
 
 if (!loginScreen || !loginForm) return;
+
+const welcomeSpeech = window.speechSynthesis;
+const femaleVoicePattern = /female|zira|samantha|ava|aria|jenny|susan|karen|hazel|veena|lekha|heera|priya/i;
+let welcomeIsMuted = localStorage.getItem('te_voice_welcome_muted') === 'true';
+let welcomeSpeechAttempt = 0;
+
+const updateWelcomeVoiceControl = () => {
+if (!welcomeVoiceToggle) return;
+welcomeVoiceToggle.setAttribute('aria-pressed', String(!welcomeIsMuted));
+welcomeVoiceToggle.innerHTML = welcomeIsMuted
+  ? '<span aria-hidden="true">🔇</span> Welcome voice: Off'
+  : '<span aria-hidden="true">🔊</span> Welcome voice: On';
+};
+
+const playWelcomeVoice = () => {
+if (welcomeIsMuted || !welcomeSpeech || !('SpeechSynthesisUtterance' in window)) return;
+
+welcomeSpeech.cancel();
+const attempt = ++welcomeSpeechAttempt;
+const utterance = new SpeechSynthesisUtterance(
+  'Welcome to Tuhin Enterprise. Your smarter shopping experience starts here.'
+);
+const voices = welcomeSpeech.getVoices();
+const englishVoices = voices.filter(voice => voice.lang.toLowerCase().startsWith('en'));
+const femaleEnglishVoice = englishVoices.find(voice => femaleVoicePattern.test(voice.name));
+const indianEnglishVoice = englishVoices.find(voice => voice.lang.toLowerCase() === 'en-in');
+utterance.voice = femaleEnglishVoice || indianEnglishVoice || englishVoices[0] || null;
+utterance.lang = utterance.voice?.lang || 'en-IN';
+utterance.rate = 0.96;
+utterance.pitch = 1.12;
+utterance.volume = 1;
+utterance.onstart = () => {
+  if (welcomeVoiceStatus && !welcomeIsMuted) welcomeVoiceStatus.textContent = 'Welcome to Tuhin Enterprise.';
+};
+utterance.onend = () => {
+  if (welcomeVoiceStatus && !welcomeIsMuted) {
+    welcomeVoiceStatus.textContent = 'A warm welcome is ready for you.';
+  }
+};
+utterance.onerror = (event) => {
+  if (welcomeVoiceStatus && !welcomeIsMuted) {
+    welcomeVoiceStatus.textContent = event.error === 'not-allowed'
+      ? 'Tap the voice button to hear the welcome.'
+      : 'Welcome voice could not play. Tap to try again.';
+  }
+};
+if (welcomeVoiceStatus) welcomeVoiceStatus.textContent = 'Playing your welcome…';
+welcomeSpeech.speak(utterance);
+window.setTimeout(() => {
+  if (attempt === welcomeSpeechAttempt && !welcomeIsMuted && !welcomeSpeech.speaking && !welcomeSpeech.pending && welcomeVoiceStatus) {
+    welcomeVoiceStatus.textContent = 'Tap the voice button to hear the welcome.';
+  }
+}, 1400);
+};
+
+if (welcomeVoiceToggle) {
+welcomeVoiceToggle.addEventListener('click', () => {
+  welcomeIsMuted = !welcomeIsMuted;
+  if (welcomeIsMuted) {
+    welcomeSpeechAttempt += 1;
+    localStorage.setItem('te_voice_welcome_muted', 'true');
+    welcomeSpeech?.cancel();
+    if (welcomeVoiceStatus) welcomeVoiceStatus.textContent = 'Welcome voice is off.';
+  } else {
+    localStorage.removeItem('te_voice_welcome_muted');
+    playWelcomeVoice();
+  }
+  updateWelcomeVoiceControl();
+});
+}
+updateWelcomeVoiceControl();
+if (!welcomeSpeech || !('SpeechSynthesisUtterance' in window)) {
+  if (welcomeVoiceToggle) welcomeVoiceToggle.disabled = true;
+  if (welcomeVoiceStatus) welcomeVoiceStatus.textContent = 'Voice playback is not supported in this browser.';
+}
+window.setTimeout(playWelcomeVoice, 500);
 
 const setAuthenticated = (identity = localStorage.getItem('te_identity') || 'Customer') => {
 const cleanIdentity = identity.trim() || 'Customer';
@@ -968,6 +1155,7 @@ confirmPasswordInput.focus();
 showToast('Passwords do not match.');
 return;
 }
+welcomeSpeech?.cancel();
 localStorage.setItem('te_name', document.getElementById('loginName').value.trim());
 localStorage.setItem('te_phone', document.getElementById('loginPhone').value.trim());
 localStorage.setItem('te_location', document.getElementById('loginLocation').value.trim());
@@ -1015,6 +1203,7 @@ return;
 }
 loginScreen.classList.remove('is-hidden', 'login-complete');
 document.body.classList.add('login-active');
+playWelcomeVoice();
 });
 
 accountLogoutButton.addEventListener('click', () => {
@@ -1030,6 +1219,7 @@ loginButton.innerHTML = '<span>Login</span>';
 loginButton.setAttribute('aria-label', 'Login to Tuhin Enterprise');
 loginScreen.classList.remove('is-hidden', 'login-complete');
 document.body.classList.add('login-active');
+playWelcomeVoice();
 showToast('You have been signed out.');
 });
 
@@ -1157,7 +1347,7 @@ if (footer) footer.style.display = 'block';
 if (countLabel) countLabel.innerText = `(${state.wishlist.length} items)`;
 
 list.innerHTML = state.wishlist.map(id => {
-const prod = PRODUCTS.find(p => p.id === id);
+const prod = findProductById(id);
 if (!prod) return '';
 
 return `
@@ -1442,7 +1632,7 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 
 function updateCategoryInterfaceCopy(category) {
 const copy = {
-mobiles: ['Tuhin Mobile Hub', 'Find your next mobile.', 'Explore flagship cameras, gaming powerhouses, and everyday phones.', 'Shop by mobile brand', 'All popular mobile companies, handpicked for you'],
+mobiles: ['Tuhin Mobile Hub', 'Find your next mobile.', 'Explore every iPhone generation, compare colour and storage options, and discover leading Android phones.', 'Shop by mobile brand', 'Browse every iPhone from the original model alongside popular smartphone brands'],
 laptops: ['Tuhin Laptop Studio', 'Power your next move.', 'Compare creator machines, gaming laptops, and work-ready notebooks.', 'Shop by laptop brand', 'Performance laptops from trusted technology brands'],
 audio: ['Tuhin Audio Lab', 'Hear every detail.', 'Discover headphones, earbuds, speakers, and smart wearables.', 'Shop audio & wearable brands', 'Premium sound and smart lifestyle devices'],
 fashion: ['Tuhin Style Edit', 'Wear your story.', 'Explore sneakers, denim, sunglasses, and signature everyday style.', 'Shop fashion brands', 'Curated fashion from iconic style brands'],
@@ -1471,10 +1661,13 @@ const count = document.getElementById('mobileResultCount');
 if (!grid || !count) return;
 const category = document.getElementById('mobileInterface').dataset.category || 'mobiles';
 
-const phones = PRODUCTS.filter(product => {
-if (product.category !== category) return false;
+const phoneCatalog = category === 'mobiles'
+  ? [...PRODUCTS.filter(product => product.category === category), ...IPHONE_PRODUCTS]
+  : PRODUCTS.filter(product => product.category === category);
+const phones = phoneCatalog.filter(product => {
 const matchBrand = brand === 'all' || getCategoryBrand(product, category) === brand;
 if (!matchBrand) return false;
+if (category === 'mobiles' && getCategoryBrand(product, category) === 'iPhone' && !product.iphoneOptions) return false;
 if (searchQuery.trim() !== '') {
 const q = searchQuery.toLowerCase();
 return product.name.toLowerCase().includes(q) ||
@@ -1499,11 +1692,14 @@ grid.innerHTML = phones.map(phone => `
           <strong>₹${phone.price.toLocaleString('en-IN')}</strong>
           <del>₹${phone.originalPrice.toLocaleString('en-IN')}</del>
         </div>
+        ${phone.iphoneOptions ? `<p class="iphone-card-options">${phone.iphoneOptions.ram} RAM · ${phone.iphoneOptions.storage.length} storage choices · ${phone.iphoneOptions.colors.length} colours</p>` : ''}
         <p class="mobile-phone-offer">Free delivery · Tuhin Assured</p>
         <span class="mobile-price-note">Market reference price · offers may vary</span>
         <div class="mobile-phone-actions">
           <button type="button" class="quick-view-btn" onclick="openQuickView(${phone.id})">Quick View</button>
-          <button type="button" class="add-cart-btn" onclick="addToCart(${phone.id}, event)">Add to Cart</button>
+          ${phone.iphoneOptions
+            ? `<button type="button" class="add-cart-btn" onclick="openQuickView(${phone.id})">Choose options</button>`
+            : `<button type="button" class="add-cart-btn" onclick="addToCart(${phone.id}, event)">Add to Cart</button>`}
         </div>
       </div>
     </article>
@@ -1517,7 +1713,7 @@ await Promise.all(products.map(async (product) => {
 const card = document.querySelector(`${cardSelector}[data-phone-id="${product.id}"]`)
 || document.querySelector(`${cardSelector}[data-product-id="${product.id}"]`);
 const image = card ? card.querySelector('img') : null;
-if (!image) return;
+if (!image || product.iphoneOptions) return;
 
 const category = product.category === 'mobiles' ? 'mobile phone' : product.category;
 const query = `${product.name.replace(/\([^)]*\)/, '').trim()} ${category}`;
@@ -1727,7 +1923,7 @@ if (dropdown) dropdown.classList.remove('show');
 }
 
 function selectSearchItem(productId) {
-const product = PRODUCTS.find(p => p.id === productId);
+const product = findProductById(productId);
 const input = document.getElementById('searchInput');
 if (!product) return;
 
@@ -1811,12 +2007,13 @@ return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").re
 // ==========================================
 // 9. ANIMATED FLY TO CART LOGIC
 // ==========================================
-function addToCart(productId, event) {
-const product = PRODUCTS.find(p => p.id === productId);
+function addToCart(productId, event, variant = null) {
+const product = findProductById(productId);
 if (!product) return;
 
 // 1. Locate source image and target cart icon
-const sourceImg = document.getElementById(`img-${productId}`) || event.target.closest('.product-card').querySelector('img');
+const sourceImg = document.getElementById(`img-${productId}`)
+|| event?.target?.closest('.product-card, .mobile-phone-card, .modal-card')?.querySelector('img');
 const cartIcon = document.getElementById('cartBadgeWrapper');
 
 if (sourceImg && cartIcon) {
@@ -1859,16 +2056,19 @@ setTimeout(() => {
 }
 
 // 2. Update cart state
-const existing = state.cart.find(item => item.id === productId);
+const variantKey = variant ? `${variant.color}|${variant.storage}` : '';
+const existing = state.cart.find(item => item.id === productId && (item.variantKey || '') === variantKey);
 if (existing) {
 existing.qty += 1;
 } else {
-state.cart.push({ id: productId, qty: 1 });
+state.cart.push({ id: productId, qty: 1, ...(variant ? { variant, variantKey, cartEntryId: nextCartEntryId++ } : {}) });
 }
 
 saveCart();
 updateCartBadge();
-showToast(`Added "${product.name.substring(0, 26)}..." to cart! 🛒`);
+showToast(variant
+  ? `Added ${product.name} (${variant.color}, ${variant.storage}) to cart! 🛒`
+  : `Added "${product.name.substring(0, 26)}..." to cart! 🛒`);
 }
 
 // ==========================================
@@ -1915,27 +2115,32 @@ let subtotal = 0;
 let originalTotal = 0;
 
 list.innerHTML = state.cart.map(item => {
-const prod = PRODUCTS.find(p => p.id === item.id);
+const prod = findProductById(item.id);
 if (!prod) return '';
+const linePrice = item.variant ? item.variant.price : prod.price;
+const lineOriginalPrice = item.variant ? item.variant.originalPrice : prod.originalPrice;
+const cartTitle = item.variant ? `${prod.name} (${item.variant.color}, ${item.variant.storage})` : prod.name;
+const itemKey = item.cartEntryId || item.id;
 
 totalItems += item.qty;
-subtotal += prod.price * item.qty;
-originalTotal += prod.originalPrice * item.qty;
+subtotal += linePrice * item.qty;
+originalTotal += lineOriginalPrice * item.qty;
 
 return `
   <div class="cart-item-row">
-    <button class="remove-cart-item" onclick="removeCartItem(${prod.id})" title="Remove">✕</button>
+    <button class="remove-cart-item" onclick="removeCartItem(${itemKey})" title="Remove">✕</button>
     <img src="${prod.image}" alt="${prod.name}" class="cart-item-img">
     <div class="cart-item-info">
-      <div class="cart-item-title">${prod.name}</div>
+      <div class="cart-item-title">${cartTitle}</div>
+      ${item.variant ? `<div class="cart-item-variant">${item.variant.ram} RAM · ${item.variant.color} · ${item.variant.storage} ROM</div>` : ''}
       <div class="cart-item-price-row">
-        <span class="cart-item-price">₹${(prod.price * item.qty).toLocaleString('en-IN')}</span>
-        <span class="cart-item-original">₹${(prod.originalPrice * item.qty).toLocaleString('en-IN')}</span>
+        <span class="cart-item-price">₹${(linePrice * item.qty).toLocaleString('en-IN')}</span>
+        <span class="cart-item-original">₹${(lineOriginalPrice * item.qty).toLocaleString('en-IN')}</span>
       </div>
       <div class="cart-qty-controls">
-        <button class="qty-btn" onclick="changeQty(${prod.id}, -1)">-</button>
+        <button class="qty-btn" onclick="changeQty(${itemKey}, -1)">-</button>
         <span class="qty-val">${item.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${prod.id}, 1)">+</button>
+        <button class="qty-btn" onclick="changeQty(${itemKey}, 1)">+</button>
       </div>
     </div>
   </div>
@@ -1948,7 +2153,7 @@ updatePriceSummary(subtotal, originalTotal);
 }
 
 function changeQty(productId, delta) {
-const item = state.cart.find(p => p.id === productId);
+const item = state.cart.find(p => (p.cartEntryId || p.id) === productId);
 if (!item) return;
 
 item.qty += delta;
@@ -1962,7 +2167,7 @@ updateCartBadge();
 }
 
 function removeCartItem(productId) {
-state.cart = state.cart.filter(p => p.id !== productId);
+state.cart = state.cart.filter(p => (p.cartEntryId || p.id) !== productId);
 saveCart();
 renderCartItems();
 updateCartBadge();
@@ -2011,10 +2216,19 @@ openPaymentInterface();
 function openPaymentInterface() {
 const payment = document.getElementById('paymentInterface');
 const items = document.getElementById('paymentItems');
-const total = document.getElementById('cartGrandTotal').innerText;
+const cartTotal = state.cart.reduce((sum, item) => {
+const product = findProductById(item.id);
+if (!product) return sum;
+const itemPrice = item.variant ? item.variant.price : product.price;
+return sum + itemPrice * item.qty;
+}, 0);
+const total = `₹${cartTotal.toLocaleString('en-IN')}`;
 items.innerHTML = state.cart.map(item => {
-const product = PRODUCTS.find(p => p.id === item.id);
-return product ? `<div class="payment-item"><span>${product.name} <b>×${item.qty}</b></span><strong>₹${(product.price * item.qty).toLocaleString('en-IN')}</strong></div>` : '';
+const product = findProductById(item.id);
+if (!product) return '';
+const itemPrice = item.variant ? item.variant.price : product.price;
+const itemName = item.variant ? `${product.name} (${item.variant.color}, ${item.variant.storage})` : product.name;
+return `<div class="payment-item"><span>${itemName} <b>×${item.qty}</b></span><strong>₹${(itemPrice * item.qty).toLocaleString('en-IN')}</strong></div>`;
 }).join('');
 document.getElementById('paymentTotal').innerText = total;
 document.getElementById('paymentButtonTotal').innerText = total;
@@ -2048,12 +2262,17 @@ const identity = localStorage.getItem('te_identity') || 'Customer';
 const ordersKey = `te_orders_${identity}`;
 const savedOrders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
 const orderItems = state.cart.map((item) => {
-const product = PRODUCTS.find((product) => product.id === item.id);
-return product ? { name: product.name, qty: item.qty } : null;
+const product = findProductById(item.id);
+const name = item.variant && product
+  ? `${product.name} (${item.variant.color}, ${item.variant.storage}; ${item.variant.ram} RAM)`
+  : product?.name;
+return product ? { name, qty: item.qty } : null;
 }).filter(Boolean);
 const total = state.cart.reduce((sum, item) => {
-const product = PRODUCTS.find((candidate) => candidate.id === item.id);
-return sum + (product ? product.price * item.qty : 0);
+const product = findProductById(item.id);
+if (!product) return sum;
+const itemPrice = item.variant ? item.variant.price : product.price;
+return sum + itemPrice * item.qty;
 }, 0);
 savedOrders.unshift({
 id: `TE${Date.now().toString().slice(-6)}`,
@@ -2133,11 +2352,31 @@ document.getElementById('wishlistCount').innerText = state.wishlist.length;
 // 12. QUICK VIEW MODAL
 // ==========================================
 function openQuickView(productId) {
-const product = PRODUCTS.find(p => p.id === productId);
+const product = findProductById(productId);
 if (!product) return;
 
 const modal = document.getElementById('quickViewModal');
 const details = document.getElementById('modalProductDetails');
+const iphoneOptions = product.iphoneOptions ? `
+  <section class="iphone-configurator" aria-label="Choose iPhone options">
+    <h4>Choose your iPhone</h4>
+    <div class="iphone-option-grid">
+      <label class="iphone-option-field" for="iphoneColor-${product.id}">
+        Colour
+        <select id="iphoneColor-${product.id}" onchange="updateIphoneVariantPrice(${product.id})">
+          ${product.iphoneOptions.colors.map(color => `<option value="${color}">${color}</option>`).join('')}
+        </select>
+      </label>
+      <label class="iphone-option-field" for="iphoneStorage-${product.id}">
+        Storage (ROM)
+        <select id="iphoneStorage-${product.id}" onchange="updateIphoneVariantPrice(${product.id})">
+          ${product.iphoneOptions.storage.map(storage => `<option value="${storage}">${storage}</option>`).join('')}
+        </select>
+      </label>
+    </div>
+    <p class="iphone-ram-note">${product.iphoneOptions.ram} RAM · RAM is fixed for this model; storage and colour are selectable.</p>
+  </section>
+` : '';
 
 details.innerHTML = `
 <div class="modal-body-grid">
@@ -2153,18 +2392,21 @@ ${product.assured ? '<span class="assured-badge">✔ Assured</span>' : ''}
 </div>
 
     <div class="price-container" style="margin: 12px 0;">
-      <span class="price-current" style="font-size: 24px;">₹${product.price.toLocaleString('en-IN')}</span>
-      <span class="price-original" style="font-size: 16px;">₹${product.originalPrice.toLocaleString('en-IN')}</span>
-      <span class="price-discount-percent" style="font-size: 16px;">${product.discount}% off</span>
+      <span class="price-current" id="iphoneVariantPrice" style="font-size: 24px;">₹${product.price.toLocaleString('en-IN')}</span>
+      <span class="price-original" id="iphoneVariantOriginalPrice" style="font-size: 16px;">₹${product.originalPrice.toLocaleString('en-IN')}</span>
+      <span class="price-discount-percent" id="iphoneVariantDiscount" style="font-size: 16px;">${product.discount}% off</span>
     </div>
 
+    ${iphoneOptions}
     <h4 class="modal-highlights-title">Highlights & Specifications:</h4>
     <ul class="modal-specs-list">
       ${product.specs.map(s => `<li>${s}</li>`).join('')}
     </ul>
 
     <div style="margin-top: auto; display: flex; gap: 12px;">
-      <button class="add-cart-btn" style="padding: 12px; font-size: 14px;" onclick="addToCart(${product.id}, event); closeQuickView();">
+      <button class="add-cart-btn" style="padding: 12px; font-size: 14px;" onclick="${product.iphoneOptions
+        ? `addSelectedIphoneToCart(${product.id}, event)`
+        : `addToCart(${product.id}, event); closeQuickView();`}">
         <span>🛒 Add to Cart</span>
       </button>
     </div>
@@ -2174,6 +2416,47 @@ ${product.assured ? '<span class="assured-badge">✔ Assured</span>' : ''}
 `;
 
 modal.classList.add('open');
+}
+
+function getSelectedIphoneVariant(product) {
+const colorSelect = document.getElementById(`iphoneColor-${product.id}`);
+const storageSelect = document.getElementById(`iphoneStorage-${product.id}`);
+if (!product.iphoneOptions || !colorSelect || !storageSelect) return null;
+
+const storageIndex = product.iphoneOptions.storage.indexOf(storageSelect.value);
+const storageStep = Math.max(2500, Math.round(product.price * 0.1 / 100) * 100);
+const price = product.price + Math.max(0, storageIndex) * storageStep;
+const originalPrice = Math.ceil(price * product.originalPrice / product.price / 100) * 100;
+return {
+ color: colorSelect.value,
+ storage: storageSelect.value,
+ ram: product.iphoneOptions.ram,
+ price,
+ originalPrice
+};
+}
+
+function updateIphoneVariantPrice(productId) {
+const product = findProductById(productId);
+const variant = product && getSelectedIphoneVariant(product);
+if (!variant) return;
+
+document.getElementById('iphoneVariantPrice').textContent = `₹${variant.price.toLocaleString('en-IN')}`;
+document.getElementById('iphoneVariantOriginalPrice').textContent = `₹${variant.originalPrice.toLocaleString('en-IN')}`;
+const discount = Math.round((1 - variant.price / variant.originalPrice) * 100);
+document.getElementById('iphoneVariantDiscount').textContent = `${discount}% off`;
+}
+
+function addSelectedIphoneToCart(productId, event) {
+const product = findProductById(productId);
+if (!product) return;
+const variant = getSelectedIphoneVariant(product);
+if (!variant) {
+ showToast('Please select an iPhone colour and storage option.');
+ return;
+}
+addToCart(productId, event, variant);
+closeQuickView();
 }
 
 function closeQuickView(event) {
